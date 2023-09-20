@@ -1,0 +1,38 @@
+Figure 1
+Be aware of colorblindness (find pallet online)
+
+1A
+Add Fingernail
+Remove Wave Propogation (add oscillatin on outside)
+Joints Labels? (add arrow to all of them)
+	Increase arrow size/change color
+Somehow denote motion of finger relative to contact (currently arrow down is confusing)
+
+1B
+Add legend for phalanges instead of plot titles (abbreviations)
+Vertical axis - add tickmarks and zero (connect to horizontal axis)
+Add scale bar for hand
+Add dashed line for fixed
+
+All on one plot? (piece-wise y-axis)
+
+1C
+Just have bone diagram for bottom figure (add tickmarks instead)
+Add units (mm)
+Vertical axis - tickmarks
+Typ0 - Contact Stie
+
+Bold only for A,B,C letters
+
+
+Figure 2
+
+2A
+Add diagram with smaller images
+Use image 18 instead
+Add labels for laser etc.
+
+2B
+Add bone structures back into image
+
+

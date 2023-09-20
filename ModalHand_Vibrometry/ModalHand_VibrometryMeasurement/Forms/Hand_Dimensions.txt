@@ -1,0 +1,94 @@
+High Res
+
+Probe: 0-15 mm
+Data: 18-175 mm x -2.3-2.3 mm
+
+DIP: 25 mm
+PIP: 51 mm
+MCP: 104 mm
+W: 182 mm
+
+P1
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 38 mm
+Loc4(PP): 63 mm
+Loc5(M): 144 mm
+
+DIP: 25 mm
+PIP: 50 mm
+MCP: 101 mm
+W: 182 mm
+
+
+P2
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 44 mm
+Loc4(PP): 74 mm
+Loc5(M): 144 mm
+
+DIP: 30 mm
+PIP: 58 mm
+MCP: 111 mm
+W: 198 mm
+
+
+P3
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 38 mm
+Loc4(PP): 63 mm
+Loc5(M): 124 mm
+
+DIP: 25 mm
+PIP: 50 mm
+MCP: 98 mm
+W: 173 mm
+
+
+P4
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 38 mm
+Loc4(PP): 64 mm
+Loc5(M): 131 mm
+
+DIP: 25 mm
+PIP: 50 mm
+MCP: 107 mm
+W: 186 mm
+
+
+
+P5
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 38 mm
+Loc4(PP): 68 mm
+Loc5(M): 136 mm
+
+DIP: 24 mm
+PIP: 52 mm
+MCP: 104 mm
+W: 188 mm
+
+
+
+P6
+
+Loc1(Probe): 0-15 mm
+Loc2(DP): 18 mm
+Loc3(MP): 40 mm
+Loc4(PP): 64 mm
+Loc5(M): 136 mm
+
+DIP: 28 mm
+PIP: 51 mm
+MCP: 105 mm
+W: 195 mm

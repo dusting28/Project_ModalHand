@@ -1,0 +1,17 @@
+Fig 2
+Break out magnitude on C (make other figure that shows average admittance) (Y)
+
+Fig 5
+Denote 100 Hz as reference (W)
+Summary metrics (W)
+
+Fig 6
+Swap B and C (W)
+
+All Figs:
+Determine font sizes (reduce to 12 at max) (U)
+
+For Green's Functions:
+Change 13 for motu scale factor to 18? (U)
+Look at force sensor filter? (U)
+Look at inertia effects of force sensor? (U)

@@ -1,0 +1,7 @@
+First Measurement: 18 mm
+Last Measurement: 177 mm
+
+DIP: 25
+PIP: 51
+MCP: 104
+Wrist: 182
