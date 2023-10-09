@@ -1,4 +1,4 @@
-function [admittance] = waveAdmittance(skin_compression, yprobe, freq, ylocations, model_type)
+function [admittance] = waveAdmittance(skin_compression, y_source, freq, ylocations, model_type)
 
 % Damping and wavespeed from literature
 sample_freq = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1250];
@@ -20,7 +20,7 @@ wave_speed = interp1(sample_freq, sample_speed, freq);
 damping_coefficient = interp1(sample_freq, sample_damping, freq); 
 
 % Format input velocity
-distance = (ylocations-yprobe);
+distance = (ylocations-y_source);
 for iter1 = 1:length(distance)
     if distance(iter1) <= 0
         distance(iter1) = 0;

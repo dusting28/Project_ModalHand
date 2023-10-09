@@ -7,6 +7,5 @@ function [reg] = Trapezoid_Regularizer(freq,bandwidth,beta,epsilon)
         if freq(iter1) > bandwidth(2)
             reg(iter1) = min([beta(2), (freq(iter1) - bandwidth(2)) * beta(2) / epsilon(2)]);
         end
-        
     end
 end

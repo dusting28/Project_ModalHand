@@ -27,10 +27,10 @@ freq = newtonEuler.freq;
 
 articulated_admittance = newtonEulerAdmittance(newtonEuler,y_locations);
 wave_admittance = waveAdmittance(newtonEuler.y0_out-newtonEuler.y1_out,...
-    highRes.yProbe, freq, y_locations, wave_model);
+    1000*newtonEuler.l1/2, freq, y_locations, wave_model);
 sup_admittance = articulated_admittance + wave_admittance;
 wave_admittance = waveAdmittance(newtonEuler.y_fixed,...
-    highRes.yProbe, freq, y_locations, wave_model);
+    1000*newtonEuler.l1/2, freq, y_locations, wave_model);
 
 unwrappedAdmittance(freq,highRes,wave_admittance', kernal, include_probe);
 unwrappedAdmittance(freq,highRes,articulated_admittance', kernal, include_probe);
@@ -67,14 +67,14 @@ for iter1 = 1:length(sample_freqs)
 end
 
 %% LowRes Projection
-y_locations = [lowRes.yLoc1(1), lowRes.yLoc2(1), lowRes.yLoc3(1), lowRes.yLoc4(1), lowRes.yLoc5(1)];
+y_locations = [1000*newtonEuler.l1/2, lowRes.yLoc2(1), lowRes.yLoc3(1), lowRes.yLoc4(1), lowRes.yLoc5(1)];
 
 articulated_admittance = newtonEulerAdmittance(newtonEuler,y_locations);
 wave_admittance = waveAdmittance(newtonEuler.y0_out-newtonEuler.y1_out,...
-    highRes.yProbe, freq, y_locations, wave_model);
+    1000*newtonEuler.l1/2, freq, y_locations, wave_model);
 sup_admittance = articulated_admittance + wave_admittance;
 wave_admittance = waveAdmittance(newtonEuler.y_fixed,...
-    highRes.yProbe, freq, y_locations, wave_model);
+    1000*newtonEuler.l1/2, freq, y_locations, wave_model);
 
 num_plots = length(y_locations)-not(include_probe);
 for iter1 = 1:num_plots
