@@ -4,7 +4,6 @@ close all; clc; clear;
 load("IntensityStudy_ProcessedData.mat")
 rm_stats = force_matrix;
 
-
 jitter = 8;
 figure(1)
 plot(freq,squeeze(median(rm_stats(:,1:2:end),1)),'r--');
@@ -15,8 +14,7 @@ plot(freq,squeeze(median(rm_stats(:,2:2:end),1)),'b--');
 hold on;
 boxplot(rm_stats(:,2:2:end),'BoxStyle','filled','MedianStyle','target','Symbol','.','Colors','b','Positions',freq+jitter);
 ylim([-20,20]);
-hold on;
-
+hold off;
 
 rm_table = array2table(rm_stats);
 rm_labels = cell(1,length(freq)*length(conditions));
@@ -38,9 +36,14 @@ rm = fitrm(rm_table, strcat(rm_labels{1},"-",rm_labels{end},"~1"), 'WithinDesign
 AT_intensity = ranova(rm, 'WithinModel', 'Frequency*Condition');
 
 uncorrected_p = zeros(1,length(freq));
+wilcox_p = zeros(1,length(freq));
 for iter1 = 1:length(freq)
+    figure;
+    qqplot(rm_stats(:,(iter1-1)*2+1)-rm_stats(:,(iter1-1)*2+2))
     [~,p] = ttest(rm_stats(:,(iter1-1)*2+1),rm_stats(:,(iter1-1)*2+2));
     uncorrected_p(iter1) = p;
+    [p,~] = signrank(rm_stats(:,(iter1-1)*2+1),rm_stats(:,(iter1-1)*2+2));
+    wilcox_p(iter1) = p;
 end
 
 % Holm-Bonferroni Correction
@@ -50,7 +53,26 @@ for iter1 = 1:length(sorted_idx)
     weighting(iter1) = 6 - find(~(iter1-sorted_idx));
 end
 p_vals = uncorrected_p.*weighting;
+disp("t-test pvals:")
 disp(p_vals)
+
+[~, sorted_idx] = sort(wilcox_p);
+weighting = zeros(1,length(sorted_idx));
+for iter1 = 1:length(sorted_idx)
+    weighting(iter1) = 6 - find(~(iter1-sorted_idx));
+end
+p_vals = wilcox_p.*weighting;
+disp("wilcox pvals:")
+disp(p_vals)
+
+disp("sphericity:")
+disp(mauchly(rm))
+disp("epsilon:")
+disp(epsilon(rm))
+residuals = table2array(rm_table - predict(rm,rm_table));
+residuals = reshape(residuals ,1,[]);
+figure;
+qqplot(residuals)
 
 %% Spatial Study
 load("SpatialStudy_ProcessedData.mat")
@@ -87,6 +109,7 @@ for iter1 = 1:num_stim
     hold on;
 end
 hold off;
+
 
 %% Box Chart
 distance_vector(1,1,:) = 1:size(filled_matrix,3);
@@ -140,9 +163,14 @@ AT_spatial = ranova(rm, 'WithinModel', 'Frequency*Condition');
 
 
 uncorrected_p = zeros(1,length(freq));
+wilcox_p = zeros(1,length(freq));
 for iter1 = 1:length(freq)
+    figure;
+    qqplot(rm_stats(:,(iter1-1)*2+1)-rm_stats(:,(iter1-1)*2+2))
     [~,p] = ttest(rm_stats(:,(iter1-1)*2+1),rm_stats(:,(iter1-1)*2+2));
     uncorrected_p(iter1) = p;
+    [p,~] = signrank(rm_stats(:,(iter1-1)*2+1),rm_stats(:,(iter1-1)*2+2));
+    wilcox_p(iter1) = p;
 end
 
 % Holm-Bonferroni Correction
@@ -152,4 +180,23 @@ for iter1 = 1:length(sorted_idx)
     weighting(iter1) = 6 - find(~(iter1-sorted_idx));
 end
 p_vals = uncorrected_p.*weighting;
+disp("t-test pvals:")
 disp(p_vals)
+
+[~, sorted_idx] = sort(wilcox_p);
+weighting = zeros(1,length(sorted_idx));
+for iter1 = 1:length(sorted_idx)
+    weighting(iter1) = 6 - find(~(iter1-sorted_idx));
+end
+p_vals = wilcox_p.*weighting;
+disp("wilcox pvals:")
+disp(p_vals)
+
+disp("sphericity:")
+disp(mauchly(rm))
+disp("epsilon:")
+disp(epsilon(rm))
+residuals = table2array(rm_table - predict(rm,rm_table));
+residuals = reshape(residuals ,1,[]);
+figure;
+qqplot(residuals)

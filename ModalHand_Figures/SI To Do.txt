@@ -1,0 +1,15 @@
+Stats Test Assumptions
+
+RM ANNOVA
+	Sphericity - Mauchly
+		GreenhouseGeisser corrected p-value (alreday in output from ranova) - epsilon < .75
+	Normality of Residuals (how to compute residuals?) - Shapiro-Wilk / QQ plot
+		
+
+Paired t-test
+	Normality (difference between distributions) - Shapiro-Wilk / QQ plot
+		Paired Wilcox test
+		
+t-test
+	Normality - Shapiro-Wilk / QQ plot
+		Wilcox test
