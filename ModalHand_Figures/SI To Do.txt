@@ -1,15 +1,28 @@
-Stats Test Assumptions
-
-RM ANNOVA
-	Sphericity - Mauchly
-		GreenhouseGeisser corrected p-value (alreday in output from ranova) - epsilon < .75
-	Normality of Residuals (how to compute residuals?) - Shapiro-Wilk / QQ plot
+Stats
+	RM ANNOVA
+		Sphericity - Mauchly
+			GreenhouseGeisser corrected p-value (alreday in output from ranova) - epsilon < .75
+		Normality of Residuals (how to compute residuals?) - Shapiro-Wilk / QQ plot
 		
 
-Paired t-test
-	Normality (difference between distributions) - Shapiro-Wilk / QQ plot
-		Paired Wilcox test
+	Paired t-test
+		Normality (difference between distributions) - Shapiro-Wilk / QQ plot
+			Paired Wilcox test
 		
-t-test
-	Normality - Shapiro-Wilk / QQ plot
-		Wilcox test
+	t-test
+		Normality - Shapiro-Wilk / QQ plot
+			Wilcox test
+
+Figs
+	1. Images of Test Setup
+	2. Diagram of Mechanics Model (coordinates and variables labeled)
+	3. QQ plots
+
+Videos
+	1. Videos of hand tracking with dots
+	2. Videos without dots (multiple frequencies, whole hand)
+	3. Videos of modes from COD?
+
+Data
+	1. High Res Green's Functions (fixed and free)
+	2. Low Res Green's Functions (fixed and free)
