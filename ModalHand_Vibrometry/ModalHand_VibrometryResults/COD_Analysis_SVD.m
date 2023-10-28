@@ -13,8 +13,9 @@ highRes = load("HighRes_ProcessedData.mat");
 kernal = 3;
 fs = 2500;
 include_probe = false;
-num_modes = [3, 3];
+num_modes = [3, 1];
 num_display = 3;
+gif = true;
 
 %% Generate Input Matrix
 
@@ -123,6 +124,37 @@ unwrappedAdmittance(reconstruct_freq,highRes,free_remainder_fft,kernal,include_p
 unwrappedAdmittance(highRes.freq,highRes,fixed_original,kernal,include_probe);
 unwrappedAdmittance(reconstruct_freq,highRes,free_reconstruct_fft,kernal,include_probe);
 unwrappedAdmittance(highRes.freq,highRes,free_original,kernal,include_probe);
+
+%% GIFs
+% if gif
+%     for iter1 = 1:3%num_modes(1)
+%         mode = (free_s(:,iter1)*S_free(iter1)*V_free(iter1,:)).';
+%         for iter2 = 350:1:600
+%             limit = max(abs(real(mode)),[],"all");
+%             gifPlot(real(mode(iter2,:)),1,highRes,[-limit,limit],colorcet('COOLWARM'),strcat("Standing Mode ",num2str(iter1)),include_probe)
+%         end
+%     end
+% end
+
+% if gif
+%     for iter1 = 1:3%num_modes(1)
+%         mode = (free_t(:,iter1)*S_free(iter1)*V_free(iter1,:)).';
+%         for iter2 = 350:1:600
+%             limit = max(abs(real(mode)),[],"all");
+%             gifPlot(real(mode(iter2,:)),1,highRes,[-limit,limit],colorcet('COOLWARM'),strcat("Travelling Mode ",num2str(iter1)),include_probe)
+%         end
+%     end
+% end
+
+if gif
+    for iter1 = 1:1
+        mode = (fixed_s(:,iter1)*S_fixed(iter1)*V_fixed(iter1,:)).';
+        for iter2 = 350:1:600
+            limit = max(abs(real(mode)),[],"all");
+            gifPlot(real(mode(iter2,:)),1,highRes,[-limit,limit],colorcet('COOLWARM'),strcat("Fixed Standing Mode ",num2str(iter1)),include_probe)
+        end
+    end
+end
 
 %% Pearson Correlations
 mode_corr = zeros(1,size(free_original,1));
