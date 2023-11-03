@@ -12,12 +12,6 @@ for iter1 = 1:length(imaging.zoom)
         
         % Single axis
         [sort_x,sort_idx] = sort(imaging.tracking_cell{iter1,iter2}(1,2:end,1));
-        x_pos = [sort_x(1:rows:end); sort_x(2:rows:end); sort_x(2:rows:end)];
-        pixel_scale = 0;
-        for iter3 = 1:rows
-            pixel_scale = pixel_scale + (3*10^-3)./(mean(x_pos(iter3,2:end)-x_pos(iter3,1:end-1)))/rows;
-        end
-        x_pos = (x_pos - min(x_pos,[],"all")) * pixel_scale; 
         axis_idx = zeros(rows,floor(length(sort_idx)/rows));
         iter0 = 0;
         for iter3 = rows:rows:length(sort_idx)
@@ -30,6 +24,14 @@ for iter1 = 1:length(imaging.zoom)
             axis_idx(2,iter0) = sort_idx(iter3-rows + middle_idx)+1;
             axis_idx(3,iter0) = sort_idx(iter3-rows + max_idx)+1;
         end
+
+        x_pos = [imaging.tracking_cell{iter1,iter2}(1,axis_idx(1,:),1);...
+            imaging.tracking_cell{iter1,iter2}(1,axis_idx(2,:),1); imaging.tracking_cell{iter1,iter2}(1,axis_idx(3,:),1)];
+        pixel_scale = 0;
+        for iter3 = 1:rows
+            pixel_scale = pixel_scale + (3*10^-3)./(mean(x_pos(iter3,2:end)-x_pos(iter3,1:end-1)))/rows;
+        end
+        x_pos = (x_pos - min(x_pos,[],"all")) * pixel_scale; 
         
         % Surf Plots of Center Axis
         [tMesh,xMesh] = meshgrid(linspace(time_step(1),time_step(end),100),...
@@ -76,7 +78,6 @@ for iter1 = 1:length(imaging.zoom)
         hold off;
 
         % Compute wave speed and damping
-        percent_shift = zeros(size(phase_shift,1)-1,size(phase_shift,2));
         figure;
         for iter3 = 1:size(phase_shift,2)
             phase_shift(:,iter3) = unwrap(2*pi*imaging.freqs(iter2)*phase_shift(:,iter3));
