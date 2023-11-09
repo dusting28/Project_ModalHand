@@ -10,11 +10,12 @@ for iter1 = 1:length(imaging.zoom)
         [sort_x,sort_idx] = sort(imaging.tracking_cell{iter1,iter2}(1,2:end,1));
         sort_idx = sort_idx + 1;
         pixel_scale = .02/100; % Get actual value from probe dimensions
+        tip_x = .4;
         x_pos = sort_x * pixel_scale;
         
         % Surf Plots of Center Axis
-        [tMesh,xMesh] = meshgrid(linspace(time_step(1),time_step(end),100),...
-            linspace(x_pos(1),x_pos(end),100));
+        [tMesh,xMesh] = meshgrid(linspace(time_step(1),time_step(end),1000),...
+            linspace(x_pos(1),x_pos(end),1000));
         zMesh = griddata(time_step,x_pos,imaging.displacement_cell{iter1,iter2}(:,sort_idx)',tMesh,xMesh,"cubic");
         figure;
         s = surf(xMesh,tMesh,zMesh);
@@ -56,8 +57,13 @@ for iter1 = 1:length(imaging.zoom)
         hold off;
 
         % Compute wave speed and damping
+        x_interp = linspace(x_pos(1),x_pos(end),1000);
         phase_shift = unwrap(2*pi*imaging.freqs(iter2)*phase_shift);
-        wave_speed = imaging.freqs(iter2)*2*pi*(x_pos(2:end)-x_pos(1:end-1))./-angdiff(phase_shift(2:end),phase_shift(1:end-1));
+        phase_shift = interp1(x_pos,phase_shift,x_interp,'spline');
+        amplitude = interp1(x_pos,amplitude,x_interp,'spline');
+        x_pos = x_interp;
+        phase_shift = lowpass(phase_shift,5/(x_pos(2)-x_pos(1)),1/(x_pos(2)-x_pos(1)));
+        wave_speed = imaging.freqs(iter2)*2*pi*(x_pos(2:end)-x_pos(1:end-1))./angdiff(phase_shift(2:end),phase_shift(1:end-1));
         subplot(1,3,1);
         plot(x_pos,phase_shift)
         hold on;
