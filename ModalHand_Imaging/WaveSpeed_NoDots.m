@@ -59,11 +59,13 @@ for iter1 = 1:length(imaging.zoom)
         % Compute wave speed and damping
         x_interp = linspace(x_pos(1),x_pos(end),1000);
         phase_shift = unwrap(2*pi*imaging.freqs(iter2)*phase_shift);
-        phase_shift = interp1(x_pos,phase_shift,x_interp,'spline');
-        amplitude = interp1(x_pos,amplitude,x_interp,'spline');
+        phase_shift = interp1(x_pos,phase_shift,x_interp,'linear');
+        amplitude = interp1(x_pos,amplitude,x_interp,'linear');
         x_pos = x_interp;
-        phase_shift = lowpass(phase_shift,5/(x_pos(2)-x_pos(1)),1/(x_pos(2)-x_pos(1)));
+        %phase_shift = medfilt1(phase_shift,101,'truncate');
         wave_speed = imaging.freqs(iter2)*2*pi*(x_pos(2:end)-x_pos(1:end-1))./angdiff(phase_shift(2:end),phase_shift(1:end-1));
+        wave_speed = medfilt1(wave_speed,7,'truncate');
+        figure;
         subplot(1,3,1);
         plot(x_pos,phase_shift)
         hold on;
