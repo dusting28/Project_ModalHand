@@ -11,12 +11,37 @@ for iter1 = 1:length(imaging.zoom)
         sort_idx = sort_idx + 1;
         pixel_scale = .02/100; % Get actual value from probe dimensions
         tip_x = .4;
-        x_pos = sort_x * pixel_scale;
+        x_pos = (tip_x-sort_x) * pixel_scale;
+        x_pos = fliplr(x_pos);
+        sorted_displacement = imaging.displacement_cell{iter1,iter2}(:,sort_idx);
+        sorted_displacement = fliplr(sorted_displacement);
+
+        % Resample
+        delta_x = .003;
+        p=2;
+        q=1;
+        % ensure an odd length filter
+        n = 10*q+1;
+        
+        % use .25 of Nyquist range of desired sample rate
+        cutoffRatio = .1;
+        
+        % construct lowpass filter 
+        lpFilt = p * fir1(n, cutoffRatio * 1/q);
+
+        [dis_vector, x_interp] = resample(sorted_displacement(1,:),x_pos,1/delta_x,p,q,lpFilt);
+        displacement = zeros(size(imaging.displacement_cell{iter1,iter2},1),length(dis_vector));
+        displacement(1,:) = dis_vector;
+        for iter3 = 2:size(imaging.displacement_cell{iter1,iter2},1) 
+            [dis_vector, ~] = resample(sorted_displacement(iter3,:),x_pos,1/delta_x,p,q,lpFilt);
+            displacement(iter3,:) = dis_vector;
+        end
+        x_pos = x_interp;
         
         % Surf Plots of Center Axis
         [tMesh,xMesh] = meshgrid(linspace(time_step(1),time_step(end),1000),...
             linspace(x_pos(1),x_pos(end),1000));
-        zMesh = griddata(time_step,x_pos,imaging.displacement_cell{iter1,iter2}(:,sort_idx)',tMesh,xMesh,"cubic");
+        zMesh = griddata(time_step,x_pos,displacement',tMesh,xMesh,"cubic");
         figure;
         s = surf(xMesh,tMesh,zMesh);
         s.EdgeColor = 'none';
@@ -25,14 +50,13 @@ for iter1 = 1:length(imaging.zoom)
         set(gca,'Ydir','reverse')
 
         % Fit cos to data at each location on finger
-        phase_shift = zeros(1,length(sort_idx));
-        offset = zeros(1,length(sort_idx));
-        amplitude = zeros(1,length(sort_idx));
+        phase_shift = zeros(1,size(displacement,2));
+        offset = zeros(1,size(displacement,2));
+        amplitude = zeros(1,size(displacement,2));
         figure;
         subplot(1,2,1)
-        single_axis = imaging.displacement_cell{iter1,iter2}(:,sort_idx);
-        for iter3 = 1:size(single_axis,2)
-            single_sine = single_axis(:,iter3)';
+        for iter3 = 1:size(displacement,2)
+            single_sine = displacement(:,iter3)';
             [amp_est ,shift_est] = max(single_sine);
             if shift_est > length(single_sine)/2
                 shift_est = shift_est - imaging.frame_rate/imaging.freqs(iter2);
@@ -50,27 +74,26 @@ for iter1 = 1:length(imaging.zoom)
             hold on;
         end
         subplot(1,2,2)
-        for iter3 = 2:size(imaging.displacement_cell{iter1,iter2},2)
-            plot(time_step,squeeze(imaging.displacement_cell{iter1,iter2}(:,iter3)))
+        for iter3 = 2:size(displacement,2)
+            plot(time_step,squeeze(displacement(:,iter3)))
             hold on;
         end
         hold off;
 
         % Compute wave speed and damping
-        x_interp = linspace(x_pos(1),x_pos(end),1000);
         phase_shift = unwrap(2*pi*imaging.freqs(iter2)*phase_shift);
-        phase_shift = interp1(x_pos,phase_shift,x_interp,'linear');
-        amplitude = interp1(x_pos,amplitude,x_interp,'linear');
-        x_pos = x_interp;
-        %phase_shift = medfilt1(phase_shift,101,'truncate');
-        wave_speed = imaging.freqs(iter2)*2*pi*(x_pos(2:end)-x_pos(1:end-1))./angdiff(phase_shift(2:end),phase_shift(1:end-1));
-        wave_speed = medfilt1(wave_speed,7,'truncate');
-        figure;
+        %phase_shift = lowpass(phase_shift,5,100);
+        %derivative = angdiff(phase_shift(2:end),phase_shift(1:end-1))./(x_pos(2:end)-x_pos(1:end-1));
+        derivative_guess = zeros(1,length(x_pos)+1);
+        derivative = TVR_Derivative(phase_shift,derivative_guess,delta_x,500,.015);
+        wave_speed = imaging.freqs(iter2)*2*pi./derivative;
+        %wave_speed = lowpass(wave_speed,30,100);
+        figure(10);
         subplot(1,3,1);
         plot(x_pos,phase_shift)
         hold on;
         subplot(1,3,2);
-        plot(x_pos(1:end-1),wave_speed)
+        plot([x_pos, x_pos(end)+delta_x],wave_speed)
         hold on;
         subplot(1,3,3);
         plot(x_pos,amplitude)

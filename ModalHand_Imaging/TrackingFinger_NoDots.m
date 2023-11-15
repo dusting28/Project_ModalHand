@@ -27,17 +27,17 @@ for iter4 = 1:length(zoom)
             if freqs(iter1) == 30
                 cut_x = [680, 1800];
                 cut_y = [435, 575];
-                cut_thickness = 45;
+                cut_thickness = 15;
             end
             if freqs(iter1) == 50
                 cut_x = [680, 1800];
                 cut_y = [435, 570];
-                cut_thickness = 50;
+                cut_thickness = 15;
             end
             if freqs(iter1) == 200
                 cut_x = [680, 1800];
                 cut_y = [375, 575];
-                cut_thickness = 45;
+                cut_thickness = 15;
             end
             input_x = [1600 1750];
             input_y = [650 800];
@@ -62,7 +62,7 @@ for iter4 = 1:length(zoom)
         title('Red box shows object region');
 
         if zoom(iter4) == "Zoom3"
-            points = detectKAZEFeatures(objectFrame(:,:,1),'ROI',objectRegion,'Threshold',.00002,'NumOctaves',2);
+            points = detectKAZEFeatures(objectFrame(:,:,1),'ROI',objectRegion,'Threshold',.000005,'NumOctaves',2);
             point_locations = maskDots(points,20,cut_x,cut_y,cut_thickness);
         end
         input_points = detectKAZEFeatures(im2gray(objectFrame),'ROI',inputRegion,'Threshold',.0003,'NumOctaves',2);
