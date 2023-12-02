@@ -19,13 +19,22 @@ gif = true;
 
 %% Generate Input Matrix
 
+% Generate white-noise stimulus
+sig_length = .5;
+noise_sig = rand(1,sig_length*fs);
+bandpass = [10, 1000];
+band_filt = designfilt('bandpassfir', 'FilterOrder', round(length(noise_sig)/3)-1, ...
+         'CutoffFrequency1', bandpass(1), 'CutoffFrequency2', bandpass(2),...
+         'SampleRate', fs);
+noise_sig = filtfilt(band_filt,noise_sig);
+
 % Create input matrices from IRs
-fixed_input = zeros(length(highRes.fixed_ir{1}),length(highRes.yCord)-not(include_probe));
-free_input = zeros(length(highRes.free_ir{1}),length(highRes.yCord)-not(include_probe));
+fixed_input = zeros(length(highRes.fixed_ir{1})+length(noise_sig)-1,length(highRes.yCord)-not(include_probe));
+free_input = zeros(length(highRes.free_ir{1})+length(noise_sig)-1,length(highRes.yCord)-not(include_probe));
 for iter1 = 1:(length(highRes.yCord)-not(include_probe))
     pos_idx = iter1 + not(include_probe);
-    fixed_signal = highRes.fixed_ir{pos_idx};
-    free_signal = highRes.free_ir{pos_idx};
+    fixed_signal = conv(highRes.fixed_ir{pos_idx},noise_sig);
+    free_signal = conv(highRes.free_ir{pos_idx},noise_sig);
     fixed_input(:,iter1) = fixed_signal - mean(fixed_signal);
     free_input(:,iter1) = free_signal- mean(free_signal);
 end
@@ -97,9 +106,9 @@ free_remainder = real(free_input-free_standing);
 free_standing = real(free_standing);
 
 % Compute FFT of each component
-free_remainder_fft = zeros(length(highRes.yCord)-not(include_probe),floor(size(free_remainder,1)/2)+2)';
-free_standing_fft = zeros(length(highRes.yCord)-not(include_probe),floor(size(free_standing,1)/2)+2)';
-free_reconstruct_fft  = zeros(length(highRes.yCord)-not(include_probe),floor(size(free_traveling,1)/2)+2)';
+free_remainder_fft = zeros(length(highRes.yCord)-not(include_probe),ceil(size(free_remainder,1)/2)+1)';
+free_standing_fft = zeros(length(highRes.yCord)-not(include_probe),ceil(size(free_standing,1)/2)+1)';
+free_reconstruct_fft  = zeros(length(highRes.yCord)-not(include_probe),ceil(size(free_traveling,1)/2)+1)';
 for iter1 = 1:length(highRes.yCord)-not(include_probe)
     [reconstruct_freq,free_standing_fft(:,iter1)] = fft_spectral(free_standing(:,iter1).',fs);
     [~,free_reconstruct_fft(:,iter1)] = fft_spectral(free_reconstruct(:,iter1).',fs);
@@ -146,15 +155,15 @@ unwrappedAdmittance(highRes.freq,highRes,free_original,kernal,include_probe);
 %     end
 % end
 
-if gif
-    for iter1 = 1:1
-        mode = (fixed_s(:,iter1)*S_fixed(iter1)*V_fixed(iter1,:)).';
-        for iter2 = 350:1:600
-            limit = max(abs(real(mode)),[],"all");
-            gifPlot(real(mode(iter2,:)),1,highRes,[-limit,limit],colorcet('COOLWARM'),strcat("Fixed Standing Mode ",num2str(iter1)),include_probe)
-        end
-    end
-end
+% if gif
+%     for iter1 = 1:1
+%         mode = (fixed_s(:,iter1)*S_fixed(iter1)*V_fixed(iter1,:)).';
+%         for iter2 = 350:1:600
+%             limit = max(abs(real(mode)),[],"all");
+%             gifPlot(real(mode(iter2,:)),1,highRes,[-limit,limit],colorcet('COOLWARM'),strcat("Fixed Standing Mode ",num2str(iter1)),include_probe)
+%         end
+%     end
+% end
 
 %% Pearson Correlations
 mode_corr = zeros(1,size(free_original,1));
@@ -218,6 +227,12 @@ end
 xlim([15,400])
 ylim([-30, 1])
 hold off;
+
+
+for iter1 = 1:num_display
+    figure;
+    plot(real(V_free(iter1,:)));
+end
 
 %% Plot Individual Standing Modes
 color_map = colorcet('COOLWARM');
