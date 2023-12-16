@@ -125,6 +125,15 @@ unwrappedAdmittance(highRes.freq,highRes,fixed_original,kernal,include_probe);
 unwrappedAdmittance(reconstruct_freq,highRes,free_reconstruct_fft,kernal,include_probe);
 unwrappedAdmittance(highRes.freq,highRes,free_original,kernal,include_probe);
 
+% Plot RMS amplitude
+for iter1 = 1:num_modes(1)
+    rms_s = rms((free_s(:,iter1)*S_free(iter1)*V_free(iter1,:))',1);
+    rms_t = rms((free_t(:,iter1)*S_free(iter1)*V_free(iter1,:))',1);
+    
+    surfPlot(rms_s,kernal,highRes,[log10(min(rms_s)), log10(max(rms_s))],turbo,strcat("RMS - Standing ", num2str(iter1)),true,include_probe);
+    surfPlot(rms_t,kernal,highRes,[log10(min(rms_t)), log10(max(rms_t))],turbo,strcat("RMS - Travelling ", num2str(iter1)),true,include_probe);
+end
+
 %% GIFs
 % if gif
 %     for iter1 = 1:3%num_modes(1)
@@ -221,8 +230,69 @@ hold off;
 
 figure;
 for iter1 = 1:num_display
-    plot(real(V_free(iter1,:)));
+    [mc_freq, modal_coordinates] = fft_spectral(free_index(iter1)*S_free(iter1)*real(V_free(iter1,:)),fs);
+    freq_idx = find(and(mc_freq>=15,mc_freq<=400));
+    contribution_t(:,iter1) = abs(modal_coordinates);
+    centroid = sum(abs(modal_coordinates(freq_idx)).*mc_freq(freq_idx))./sum(abs(modal_coordinates(freq_idx)));
+    disp(centroid);
+    freq_up = linspace(mc_freq(1),mc_freq(end),1000);
+    plot(freq_up,csapi(mc_freq,movmean(20*log10(contribution_t(:,iter1)),kernal),freq_up));
     hold on;
+end
+xlim([15,400])
+hold off;
+
+figure;
+for iter1 = 1:num_display
+    [mc_freq, modal_coordinates] = fft_spectral((1-free_index(iter1))*S_free(iter1)*real(V_free(iter1,:)),fs);
+    freq_idx = find(and(mc_freq>=15,mc_freq<=400));
+    contribution_s(:,iter1) = abs(modal_coordinates);
+    centroid = sum(abs(modal_coordinates(freq_idx)).*mc_freq(freq_idx))./sum(abs(modal_coordinates(freq_idx)));
+    disp(centroid);
+    freq_up = linspace(mc_freq(1),mc_freq(end),1000);
+    plot(freq_up,csapi(mc_freq,movmean(20*log10(contribution_s(:,iter1)),kernal),freq_up));
+    hold on;
+end
+xlim([15,400])
+hold off;
+
+figure;
+plot(freq_up,csapi(mc_freq,movmean(20*log10(sum(contribution_s,2)./sum(contribution_t,2)),kernal),freq_up));
+% hold on;
+% plot(freq_up,csapi(mc_freq,movmean(20*log10(sum(contribution_s,2)),kernal),freq_up));
+xlim([15,400])
+hold off;
+
+%% Time Domain
+
+% Plot Input Signal
+t = (0:(730-330))/fs;
+t_up = (0:0.001:(730-330))/fs;
+t_zero = t(ceil((size(V_free,2)+1)/2)-330+1);
+samp_idx = 31+5*(1:10);
+impulse = zeros(1,size(V_free,2));
+impulse(ceil(length(impulse)/2)) = 1;
+bandpass = [10, 1000];
+band_filt = designfilt('bandpassfir', 'FilterOrder', round(length(impulse)/3)-1, ...
+         'CutoffFrequency1', bandpass(1), 'CutoffFrequency2', bandpass(2),...
+         'SampleRate', fs);
+impulse = filtfilt(band_filt,impulse);
+impulse_up = spline(t,impulse(330:730),t_up);
+figure;
+plot(t_up-t_zero,impulse_up);
+hold on;
+plot(t(samp_idx)-t_zero,impulse(329+samp_idx),'.');
+hold off;
+
+
+% Plot modal coordinates
+for iter1 = 1:num_display
+    figure;
+    signal = -movmean(real(V_free(iter1,330:730)),kernal);
+    plot(t-t_zero,signal);
+    hold on;
+    plot(t(samp_idx)-t_zero,signal(samp_idx),'.');
+    hold off;
 end
 
 %% Plot Individual Standing Modes
@@ -239,4 +309,18 @@ for iter1 = 1:num_display
     mag_lim = max(abs(real(free_s(:,iter1))));
     mode_sign = sign(real(free_s(1,iter1)));
     surfPlot(mode_sign*real(free_s(:,iter1))',kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Real - Free ",num2str(iter1)),false,include_probe);
+end
+
+% Plot frames
+color_map = colorcet('COOLWARM');
+position = highRes.yCord(2-include_probe:3:end);
+disp(highRes.yDIP)
+disp(highRes.yMCP)
+for iter1 = 1:num_display
+    single_mode = free_s(:,iter1)*S_free(iter1)*V_free(iter1,:);
+    mag_lim = max(abs(real(single_mode)),[],"all");
+    for iter2 = 1:10
+        time_frame = real(single_mode(:,360+(iter2)*5))';
+        surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
+    end    
 end

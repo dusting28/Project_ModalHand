@@ -1,5 +1,5 @@
 Videos (Adobe Premier)
-	1. Videos of hand tracking with dots
+	1. Videos of hand tracking with dots?
 	2. Videos without dots (multiple frequencies, whole hand)
 	3. Videos of modes from COD?
 

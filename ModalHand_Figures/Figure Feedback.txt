@@ -1,15 +1,29 @@
-Fig 2
-Break out magnitude on C (make other figure that shows average admittance) (Y)
+Fig. 1
+	Add markers for DIP, PIP, MCP (U)
 
-Fig 5
+Fig. 2
+	Terminology (Y)
+		Modal coordinates
+		Travelling wave
+	Add zero crossing lines? (U)
+	Make waterfall plot and compress to single axis? (Y)
+
+Fig. 3
+	Break out magnitude on C (make other figure that shows average admittance) (Y)
+
+Fig. 4
 Denote 100 Hz as reference (W)
 Summary metrics (W)
 
-Fig 6
+Fig. 5
 Swap B and C (W)
+Remove D? (U)
 
 All Figs:
-Determine font sizes (reduce to 12 at max) (U)
+Change max font size to 12 (U)
+Change all other fonts to 6 (U)
+Reduce width to 7 inches (U)
+Change units to round brackets (Y)
 
 For Green's Functions:
 Change 13 for motu scale factor to 18? (U)
