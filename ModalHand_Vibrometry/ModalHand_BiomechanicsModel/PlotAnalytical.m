@@ -82,26 +82,38 @@ for iter1 = 1:num_plots
 
     figure
     freq_up = linspace(freq(1),freq(end),1000);
-    for iter2 = 1:size(lowRes.free_ir,1)
-        plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.free_tf{iter2,loc_idx})),kernal),freq_up),'k')
-        hold on
+    free_tf = zeros(size(lowRes.free_tf,1),length(lowRes.free_tf{1,loc_idx}));
+    for iter2 = 1:size(lowRes.free_tf,1)
+        free_tf(iter2,:) = lowRes.free_tf{iter2,loc_idx};
     end
+    plotMean(freq,freq_up,log10(abs(free_tf)),kernal);
+%     for iter2 = 1:size(lowRes.free_tf,1)
+%         plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.free_tf{iter2,loc_idx})),kernal),freq_up),'k')
+%         hold on
+%     end
     plot(freq_up,csapi(freq,movmean(log10(abs(sup_admittance(loc_idx,:))),kernal),freq_up),'g')
     plot(freq_up,csapi(freq,movmean(log10(abs(wave_admittance(loc_idx,:))),kernal),freq_up),'m')
     xlim([15,400])
     ylim([-1, 3])
     hold off
+    saveas(gcf,strcat("Free_Loc",num2str(iter1),"_Admittance"),'epsc')
 
     figure
-    for iter2 = 1:size(lowRes.fixed_ir,1)
-        plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.fixed_tf{iter2,loc_idx})),kernal),freq_up),'k')
-        hold on
+    fixed_tf = zeros(size(lowRes.fixed_tf,1),length(lowRes.fixed_tf{1,loc_idx}));
+    for iter2 = 1:size(lowRes.fixed_tf,1)
+        fixed_tf(iter2,:) = lowRes.fixed_tf{iter2,loc_idx};
     end
+    plotMean(freq,freq_up,log10(abs(fixed_tf)),kernal);
+%     for iter2 = 1:size(lowRes.fixed_tf,1)
+%         plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.fixed_tf{iter2,loc_idx})),kernal),freq_up),'k')
+%         hold on
+%     end
     plot(freq_up,csapi(freq,movmean(log10(abs(sup_admittance(loc_idx,:))),kernal),freq_up),'g')
     plot(freq_up,csapi(freq,movmean(log10(abs(wave_admittance(loc_idx,:))),kernal),freq_up),'m')
     xlim([15,400])
     ylim([-1, 3])
-    hold off 
+    hold off
+    saveas(gcf,strcat("Fixed_Loc",num2str(iter1),"_Admittance"),'epsc')
 end
 
 %% Correlation Values
@@ -121,6 +133,7 @@ for iter1 = 1:num_plots
     figure
     boxplot([corr_free_sup,corr_free_wave],'BoxStyle','filled','MedianStyle','target','Symbol','.','Colors',lines(2))
     ylim([-1, 1])
+    saveas(gcf,strcat("Free_Loc",num2str(iter1),"_Correlation"),'epsc')
 
     corr_fixed_sup = zeros(size(lowRes.free_ir,1),1);
     corr_fixed_wave = zeros(size(lowRes.free_ir,1),1);
@@ -133,6 +146,7 @@ for iter1 = 1:num_plots
     figure
     boxplot([corr_fixed_sup,corr_fixed_wave],'BoxStyle','filled','MedianStyle','target','Symbol','.','Colors',lines(2))
     ylim([-1, 1])
+    saveas(gcf,strcat("Fixed_Loc",num2str(iter1),"_Correlation"),'epsc')
 end
 
 %% Look at Contribution to Driving Point Impedance
