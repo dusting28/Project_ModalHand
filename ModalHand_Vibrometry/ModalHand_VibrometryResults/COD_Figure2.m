@@ -16,6 +16,8 @@ include_probe = false;
 hand_condition = "Free";
 num_modes = 3;
 gif = false;
+find_travelling_nodes = false;
+display_frames = false;
 
 %% Generate Input Matrix
 
@@ -206,161 +208,184 @@ for iter1 = 1:num_modes
 end
 
 %% Plot Individual Standing Modes
-%Plot RMS amplitude
 disp(strcat("DIP: ", num2str(highRes.yDIP)," mm"));
 disp(strcat("MCP: ", num2str(highRes.yMCP)," mm"));
-position = highRes.yCord(2-include_probe:3:end);
-for iter1 = 1:num_modes
-    rms_s = rms((standing_component(:,iter1)*S(iter1)*V(iter1,:))',1);
-    rms_t = rms((travelling_component(:,iter1)*S(iter1)*V(iter1,:))',1);
+position = highRes.yCord(include_probe+2:3:end);
 
-    s_lim = [0, max(rms_s)];
-    t_lim = [0, max(rms_t)];
-
-    surfPlot(rms_s,kernal,highRes,s_lim,turbo,strcat("RMS - Standing ", num2str(iter1)),false,include_probe);
-    surfPlot(rms_t,kernal,highRes,t_lim,turbo,strcat("RMS - Travelling ", num2str(iter1)),false,include_probe);
-end
-
-% % Plot frames of impulse modes
-% color_map = colorcet('COOLWARM');
-% mag_lim = max(abs(real(input_ensemble)),[],"all");
-% disp(strcat("Impulse Response Magnitude: ", num2str(round(mag_lim,1))));
-% for iter2 = 1:10
-%     time_frame = real(input_ensemble(360+(iter2)*5,:));
-%     surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Impulse Response - Frame ", num2str(iter2)),false,include_probe);
-%     saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_WholeResponse",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
-% end    
-% 
-% % Plot frames of standing modes
-% for iter1 = 1:num_modes
-%     single_mode = standing_component(:,iter1)*S(iter1)*V(iter1,:);
-%     mag_lim = max(abs(real(single_mode)),[],"all");
-%     disp(strcat("Mode ", num2str(iter1), " Standing Magnitude: ", num2str(round(mag_lim,1))));
-%     for iter2 = 1:10
-%         time_frame = real(single_mode(:,360+(iter2)*5))';
-%         surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
-%         saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Standing_Mode",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
-%     end    
-% end
-% 
-% % Plot frames of travelling modes
-% for iter1 = 1:num_modes
-%     single_mode = travelling_component(:,iter1)*S(iter1)*V(iter1,:);
-%     mag_lim = max(abs(real(single_mode)),[],"all");
-%     disp(strcat("Mode ", num2str(iter1), " Travelling Magnitude: ", num2str(round(mag_lim,1))));
-%     for iter2 = 1:10
-%         time_frame = real(single_mode(:,360+(iter2)*5))';
-%         surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Travelling Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
-%         saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Travelling_Mode",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
-%     end
-% end
-
-% Zero Crossings
-zcs_3 = zeros(2,num_modes,3,15,410-365+1);
-for iter1 = 1:num_modes
-    single_mode = standing_component(:,iter1)*S(iter1)*V(iter1,:);
-    for iter2 = 365:410
-        for iter3 = 1:3
-            single_axis = real(single_mode(include_probe+iter3:3:end,iter2))';
-            % single_axis = singleAxis(real(single_mode(:,iter2))',include_probe);
-            crossing_idx=zeroCrossings(single_axis,0,5);
-            for iter4 = 1:length(crossing_idx)
-                crossing_slope=(single_axis(crossing_idx(iter4)+1)-single_axis(crossing_idx(iter4)))./(position(crossing_idx(iter4)+1)-position(crossing_idx(iter4)));
-                crossing=-single_axis(crossing_idx(iter4))./crossing_slope+position(crossing_idx(iter4));
-                zcs_3(1,iter1,iter3,iter4,iter2-365+1) = crossing;
-            end
-        end
+if display_frames
+    % Plot frames of impulse modes
+    color_map = colorcet('COOLWARM');
+    mag_lim = max(abs(real(input_ensemble)),[],"all");
+    disp(strcat("Impulse Response Magnitude: ", num2str(round(mag_lim,1))));
+    for iter2 = 1:10
+        time_frame = real(input_ensemble(360+(iter2)*5,:));
+        surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Impulse Response - Frame ", num2str(iter2)),false,include_probe);
+        saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_WholeResponse",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
+    end    
+    
+    % Plot frames of standing modes
+    for iter1 = 1:num_modes
+        single_mode = standing_component(:,iter1)*S(iter1)*V(iter1,:);
+        mag_lim = max(abs(real(single_mode)),[],"all");
+        disp(strcat("Mode ", num2str(iter1), " Standing Magnitude: ", num2str(round(mag_lim,1))));
+        for iter2 = 1:10
+            time_frame = real(single_mode(:,360+(iter2)*5))';
+            surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
+            saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Standing_Mode",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
+        end    
     end
-end
-for iter1 = 1:num_modes
-    single_mode = travelling_component(:,iter1)*S(iter1)*V(iter1,:);
-    for iter2 = 365:410
-        for iter3 = 1:3
-            single_axis = real(single_mode(include_probe+iter3:3:end,iter2))';
-            % single_axis = singleAxis(real(single_mode(:,iter2))',include_probe);
-            crossing_idx=zeroCrossings(single_axis,0,5);
-            for iter4 = 1:length(crossing_idx)
-                crossing_slope=(single_axis(crossing_idx(iter4)+1)-single_axis(crossing_idx(iter4)))./(position(crossing_idx(iter4)+1)-position(crossing_idx(iter4)));
-                crossing=-single_axis(crossing_idx(iter4))./crossing_slope+position(crossing_idx(iter4));
-                zcs_3(2,iter1,iter3,iter4,iter2-365+1) = crossing;
-            end
+    
+    % Plot frames of travelling modes
+    for iter1 = 1:num_modes
+        single_mode = travelling_component(:,iter1)*S(iter1)*V(iter1,:);
+        mag_lim = max(abs(real(single_mode)),[],"all");
+        disp(strcat("Mode ", num2str(iter1), " Travelling Magnitude: ", num2str(round(mag_lim,1))));
+        for iter2 = 1:10
+            time_frame = real(single_mode(:,360+(iter2)*5))';
+            surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Travelling Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
+            saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Travelling_Mode",num2str(iter1),"_t",num2str(iter2-1)),'tiffn')
         end
     end
 end
 
-zcs_1 = zeros(2,num_modes,3,15,410-365+1);
-for iter1 = 1:num_modes
-    single_mode = standing_component(:,iter1)*S(iter1)*V(iter1,:);
-    for iter2 = 365:410
-        for iter3 = 1:3
-            single_axis = real(single_mode(include_probe+iter3:3:end,iter2))';
-            % single_axis = singleAxis(real(single_mode(:,iter2))',include_probe);
-            crossing_idx=zeroCrossings(single_axis,0,1);
-            for iter4 = 1:length(crossing_idx)
-                crossing_slope=(single_axis(crossing_idx(iter4)+1)-single_axis(crossing_idx(iter4)))./(position(crossing_idx(iter4)+1)-position(crossing_idx(iter4)));
-                crossing=-single_axis(crossing_idx(iter4))./crossing_slope+position(crossing_idx(iter4));
-                zcs_1(1,iter1,iter3,iter4,iter2-365+1) = crossing;
-            end
-        end
-    end
-end
-for iter1 = 1:num_modes
-    single_mode = travelling_component(:,iter1)*S(iter1)*V(iter1,:);
-    for iter2 = 365:410
-        for iter3 = 1:3
-            single_axis = real(single_mode(include_probe+iter3:3:end,iter2))';
-            % single_axis = singleAxis(real(single_mode(:,iter2))',include_probe);
-            crossing_idx=zeroCrossings(single_axis,0,1);
-            for iter4 = 1:length(crossing_idx)
-                crossing_slope=(single_axis(crossing_idx(iter4)+1)-single_axis(crossing_idx(iter4)))./(position(crossing_idx(iter4)+1)-position(crossing_idx(iter4)));
-                crossing=-single_axis(crossing_idx(iter4))./crossing_slope+position(crossing_idx(iter4));
-                zcs_1(2,iter1,iter3,iter4,iter2-365+1) = crossing;
-            end
-        end
-    end
-end
-
-color_map = colormap(winter(3));
-for iter1 = 1:size(zcs_3,1)
-    for iter2 = 1:size(zcs_3,2)
+%% Standing Nodes
+standing_nodes = zeros(num_modes,3);
+for column = 1:3
+    for iter1 = 1:num_modes
         figure;
-        for iter3 = 1:size(zcs_3,3)
-            for iter4 = 1:size(zcs_3,4)
-                for iter5 = 1:size(zcs_3,5)
-                    plot(iter5,zcs_3(iter1,iter2,iter3,iter4,iter5),'.','Color',color_map(iter3,:))
-                    hold on;
-                    if mod(iter5,5) == 1
-                        plot(iter5,zcs_1(iter1,iter2,iter3,1,iter5),'o','Color',color_map(iter3,:))
+        single_mode = real(squeeze(standing_component(:,iter1)));
+        single_axis = single_mode(include_probe+column:3:end);
+        plot(single_axis);
+        crossing_idx = find(single_axis(1:end-1).*single_axis(2:end)<0);
+        crossing_idx = crossing_idx(1);
+        crossing_slope = (single_axis(crossing_idx+1)-single_axis(crossing_idx))/(position(crossing_idx+1)-position(crossing_idx));
+        standing_nodes(iter1,column) = -single_axis(crossing_idx)/crossing_slope+position(crossing_idx);
+        disp(strcat("Standing Node Location: ", num2str(standing_nodes(iter1,column))))
+    end
+end
+%% Finding Travelling Nodes
+num_nodes = [2, 4, 12];
+if find_travelling_nodes
+    for column = 1:3
+        zc = cell(num_modes,round((size(travelling_component,1)-include_probe)/3),2);
+        for iter1 = 1:num_modes
+            figure;
+            single_mode = travelling_component(:,iter1)*S(iter1)*V(iter1,:);
+            for iter2 = 1:round((size(single_mode,1)-include_probe)/3)
+                single_axis = real(single_mode(include_probe+(iter2-1)*3+column,:))';
+                [crossing_idx, signs] = zeroCrossingTime(single_axis,5,.1);
+                plot(single_axis,'k');
+                hold on;
+                blue_cross = zeros(sum(signs==1),1);
+                red_cross = zeros(sum(signs==-1),1);
+                blue_iter = 0;
+                red_iter = 0;
+                for iter4 = 1:length(crossing_idx)
+                    crossing_slope=(single_axis(crossing_idx(iter4)+1)-single_axis(crossing_idx(iter4)));
+                    crossing=-single_axis(crossing_idx(iter4))./crossing_slope+crossing_idx(iter4);
+                    if signs(iter4)>0
+                        blue_iter = blue_iter+1;
+                        blue_cross(blue_iter) = crossing;
+                        xline(crossing,'b')
+                    else
+                        red_iter = red_iter+1;
+                        red_cross(red_iter) = crossing;
+                        xline(crossing,'r')
                     end
-                    hold on;
                 end
+                hold off;
+                zc{iter1,iter2,1} = red_cross;
+                zc{iter1,iter2,2} = blue_cross;
             end
         end
-        hold off;
+        travelling_nodes = cell(sum(num_nodes),1);
+        iter0 = 0;
+        for iter1 = 1:size(zc,1)
+            figure;
+            for iter2 = 1:size(zc,2)
+                for iter3 = 1:size(zc,3)
+                    for iter4 = 1:length(zc{iter1,iter2,iter3})
+                        if iter3 == 1
+                            plot(position(iter2),zc{iter1,iter2,iter3}(iter4),'ro')
+                            hold on;
+                        end
+                        if iter3 == 2
+                            plot(position(iter2),zc{iter1,iter2,iter3}(iter4),'bo')
+                            hold on;
+                        end
+                    end
+                end
+            end
+            hold off;
+            for iter2 = 1:num_nodes(iter1)
+                iter0 = iter0+1;
+                title(strcat("Travelling node ", num2str(iter0), ": select adjacent points of same color"))
+                node_estimands = ginput();
+                node_actual = zeros(size(node_estimands,1), size(node_estimands,2));
+                for iter3 = 1:size(node_estimands,1)
+                    min_distance = Inf;
+                    for iter4 = 1:size(zc,2)
+                        for iter5 = 1:size(zc,3)
+                            for iter6 = 1:length(zc{iter1,iter4,iter5})
+                                distance = norm(node_estimands(iter3,:) - [position(iter4), zc{iter1,iter4,iter5}(iter6)]);
+                                if distance < min_distance
+                                    min_distance = distance;
+                                    node_actual(iter3,:) = [position(iter4), zc{iter1,iter4,iter5}(iter6)];
+                                end
+                            end
+                        end
+                    end
+                end
+                travelling_nodes{iter0} = node_actual;
+            end
+        end
+        load_name = strcat("TravellingNodes",num2str(column),".mat");
+        save(load_name, "travelling_nodes")
     end
 end
 
-color_map = colormap(winter(3));
-for iter1 = 1:size(zcs_3,1)
-    for iter2 = 1:size(zcs_3,2)
-        iter0 = 0;
-        for iter5 = 1:size(zcs_3,5)
-            if mod(iter5,5) == 1
-                figure;
-                yline(highRes.yCord(2))
-                yline(median(squeeze(zcs_1(iter1,iter2,:,1,iter5))))
-                yline(highRes.yCord(end))
-                if iter1 == 1
-                    saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Standing_ZeroCrossing_Mode",num2str(iter2),"_t",num2str(iter0)),'epsc')
+travelling_node_cell = cell(1,3);
+for iter1 = 1:length(travelling_node_cell)
+    load_name = strcat("TravellingNodes",num2str(iter1),".mat");
+    loaded_modes = load(load_name);
+    travelling_node_cell{iter1} = loaded_modes.travelling_nodes;
+end
+
+% Fit linear wave speed
+wavespeed = zeros(sum(num_nodes),3);
+for iter1 = 1:sum(num_nodes)
+    figure;
+    for iter2 = 1:3
+        plot(travelling_node_cell{iter2}{iter1}(:,1),travelling_node_cell{iter2}{iter1}(:,2),'o')
+        hold on;
+        pfit = polyfit(travelling_node_cell{iter2}{iter1}(:,1), travelling_node_cell{iter2}{iter1}(:,2),1);
+        plot(travelling_node_cell{iter2}{iter1}(:,1),polyval(pfit,travelling_node_cell{iter2}{iter1}(:,1)));
+        wavespeed(iter1,iter2) = fs/pfit(1)/1000;
+    end
+end
+
+% Find zero crossing at specific frames
+plot_frames = 360+(1:10)*5;
+zc_frame = zeros(num_modes,length(plot_frames),sum(num_nodes),3);
+for iter1 = 1:num_modes
+    for iter2 = 1:length(plot_frames)
+        for iter3 = 1:num_nodes(iter1)
+            if iter1 > 1
+                node_idx = sum(num_nodes(1:iter1-1))+iter3;
+            else
+                node_idx = iter3;
+            end
+            for iter4 = 1:3
+                if and(plot_frames(iter2) >= min(travelling_node_cell{iter4}{node_idx}(:,2)),...
+                        plot_frames(iter2) <= max(travelling_node_cell{iter4}{node_idx}(:,2)))
+                    zc_frame(iter1,iter2,node_idx,iter4) = interp1(travelling_node_cell{iter4}{node_idx}(:,2), ...
+                        travelling_node_cell{iter4}{node_idx}(:,1), plot_frames(iter2));
                 end
-                if iter1 == 2
-                    saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Travelling_ZeroCrossing_Mode",num2str(iter2),"_t",num2str(iter0)),'epsc')
-                end
-                iter0 = iter0+1;
             end
         end
     end
 end
+
 
 % Generate GIFs
 if gif
