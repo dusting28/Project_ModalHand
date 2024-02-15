@@ -25,9 +25,9 @@ for iter1 = 1:length(imaging.scenarios)
         envolope{iter1}(iter0,1) = max_val;
         envolope{iter1}(iter0,2) = max_idx;
         plot(acc_sig,"Color",colormap(iter2,:))
-        hold on;
+        hold on; 
     end
-    figure;
+    fig=figure;
     decay = zeros(length(sample_freqs),num_locs/3);
     phase_lag = zeros(length(sample_freqs),num_locs/3);
     iter0 = 0;
@@ -46,9 +46,9 @@ for iter1 = 1:length(imaging.scenarios)
             decay(iter3,iter0) = P1(freq_idx);
             phase_lag(iter3,iter0) = phase_angle(freq_idx);
         end
-        %plot(freq,20*log10(P1),"Color",colormap(iter2,:))
-        plot(freq,P1,"Color",colormap(iter2,:))
-        % ylim([90, 120]);
+        plot(freq,20*log10(P1),"Color",colormap(iter2,:))
+        title(strcat("x-position: ", num2str(iter0)));
+        ylim([50, 120]);
         xlim([15, 400]);
         hold on;
     end

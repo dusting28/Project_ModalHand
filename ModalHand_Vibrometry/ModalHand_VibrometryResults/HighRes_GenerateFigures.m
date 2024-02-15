@@ -11,7 +11,7 @@ highRes = load("HighRes_ProcessedData.mat");
 %% Reformat Loaded Data
 kernal = 3;
 sample_freqs = [15, 50, 100, 200, 400];
-include_probe = false;
+include_probe = true;
 
 sample_idx = zeros(1,length(sample_freqs));
 for iter1 = 1:length(sample_freqs)
@@ -100,6 +100,31 @@ for iter1 = 1:length(sample_freqs)
     xlabel("Distance from Probe (mm)")
     ylabel("Normalized Admittance")
     hold off;
+
+    % finger_decay = normalized_free(position<=highRes.yMCP);
+    % ideal_slope = (1/(highRes.yProbe-highRes.yMCP));
+    % ideal_linear = ideal_slope*position(position<=highRes.yMCP)+(1-ideal_slope*highRes.yProbe);
+    % SStot = sum((finger_decay-mean(finger_decay)).^2);                    % Total Sum-Of-Squares
+    % SSres = sum((finger_decay-ideal_linear).^2); 
+    % Rsq = 1-SSres/SStot;
+    % disp(strcat("Linear Fit:", num2str(Rsq)))
+    
+    % Residual Sum-Of-Squares
+     
+    mdl = fitlm(position(position<=highRes.yMCP),normalized_free(position<=highRes.yMCP));
+    Rsq = 1-SSres/SStot;
+    disp(strcat("Linear Fit:", num2str(mdl.Rsquared.Ordinary)))
+
+    figure(100);
+    plot(position_up, csapi(position,normalized_free,position_up))
+    xline(highRes.yProbe, 'k')
+    xline(63, 'k')
+    xlim([0,highRes.yMCP])
+    ylim([0,1.25]);
+    title(strcat(num2str(sample_freqs(iter1))," Hz"))
+    xlabel("Distance from Probe (mm)")
+    ylabel("Normalized Admittance")
+
 end
 hold off;
 

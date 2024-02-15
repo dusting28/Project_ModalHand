@@ -260,9 +260,9 @@ for column = 1:3
         crossing_idx = crossing_idx(1);
         crossing_slope = (single_axis(crossing_idx+1)-single_axis(crossing_idx))/(position(crossing_idx+1)-position(crossing_idx));
         standing_nodes(iter1,column) = -single_axis(crossing_idx)/crossing_slope+position(crossing_idx);
-        disp(strcat("Standing Node Location: ", num2str(standing_nodes(iter1,column))))
     end
 end
+    
 %% Finding Travelling Nodes
 num_nodes = [2, 4, 12];
 if find_travelling_nodes
@@ -352,17 +352,30 @@ for iter1 = 1:length(travelling_node_cell)
 end
 
 % Fit linear wave speed
-wavespeed = zeros(sum(num_nodes),3);
+wavespeed = zeros(3,sum(num_nodes));
 for iter1 = 1:sum(num_nodes)
+    common_pos = intersect(intersect(travelling_node_cell{1}{iter1}(:,1),travelling_node_cell{2}{iter1}(:,1)),...
+        travelling_node_cell{3}{iter1}(:,1));
+    common_nodes = zeros(3,length(common_pos));
+    for iter2 = 1:length(common_pos)
+        for iter3 = 1:3
+            [~,node_idx] = min(abs(travelling_node_cell{iter3}{iter1}(:,1)-common_pos(iter2)));
+            common_nodes(iter3,iter2) = travelling_node_cell{iter3}{iter1}(node_idx,2);
+        end
+    end
     figure;
     for iter2 = 1:3
-        plot(travelling_node_cell{iter2}{iter1}(:,1),travelling_node_cell{iter2}{iter1}(:,2),'o')
+        plot(common_pos,common_nodes(iter2,:),'o')
         hold on;
-        pfit = polyfit(travelling_node_cell{iter2}{iter1}(:,1), travelling_node_cell{iter2}{iter1}(:,2),1);
-        plot(travelling_node_cell{iter2}{iter1}(:,1),polyval(pfit,travelling_node_cell{iter2}{iter1}(:,1)));
-        wavespeed(iter1,iter2) = fs/pfit(1)/1000;
+        pfit = polyfit(common_pos, common_nodes(iter2,:),1);
+        plot(common_pos,polyval(pfit,common_pos));
+        wavespeed(iter2,iter1) = fs/pfit(1)/1000;
     end
 end
+
+speed1 = median(abs(wavespeed(:,1:num_nodes(1))),"all");
+speed2 = median(abs(wavespeed(:,num_nodes(1)+1:num_nodes(1)+num_nodes(2))),"all");
+speed3 = median(abs(wavespeed(:,num_nodes(1)+num_nodes(2)+1:sum(num_nodes))),"all");
 
 % Find zero crossing at specific frames
 plot_frames = 360+(1:10)*5;
@@ -386,6 +399,33 @@ for iter1 = 1:num_modes
     end
 end
 
+%% Plot Nodes
+
+for iter1 = 1:size(standing_nodes,1)
+    figure;
+    plot(standing_nodes(iter1,:))
+    hold on;
+    yline(highRes.yCord(2-include_probe))
+    yline(highRes.yCord(end))
+    set(gca, 'YDir','reverse')
+    saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Standing_Mode",num2str(iter1),"_NodeLocation"),'epsc')
+    disp(strcat("Standing Node Location: ", num2str(mean(standing_nodes(iter1,:)))))
+end
+
+for iter1 = 1:size(zc_frame,1)
+    for iter2 = 1:size(zc_frame,2)
+        figure;
+        for iter3 = 1:size(zc_frame,3)
+            plot(squeeze(zc_frame(iter1,iter2,iter3,:)))
+            hold on;
+        end
+        yline(highRes.yCord(2-include_probe))
+        yline(highRes.yCord(end))
+        set(gca, 'YDir','reverse')
+        saveas(gcf,strcat("MATLAB_Figs/",hand_condition,"_Travelling_Mode",num2str(iter1),"_NodeLocation_t",num2str(iter2-1)),'epsc')
+        disp(strcat("Standing Node Location: ", num2str(mean(standing_nodes(iter1,:)))))
+    end
+end
 
 % Generate GIFs
 if gif

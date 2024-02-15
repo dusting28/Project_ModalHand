@@ -2,14 +2,17 @@ clc; clear; close all;
 addpath("Videos/NaturalTouch/")
 
 imaging = load("ImageData_NaturalTouch.mat");
-dot_size = 30;
+dot_size = 35;
+% color_map = flipud(colorcet('COOLWARM'));
 color_map = colorcet('COOLWARM');
 acc_win = 5;
-start_idx = [1,1,1,1,50];
+start_idx = [1,1,1,1,60];
 sig_len = 100;
 remove_points = [0,0,2,5,2];
 
-for iter1 = 3:length(imaging.scenarios)
+select_frames = [5, 15, 20, 25];
+
+for iter1 = 5
     file_name = strcat(imaging.scenarios(iter1),"_",num2str(imaging.frame_rate(iter1)),"FPS.tif");
     info = imfinfo(file_name);
     width = info(1).Width;
@@ -34,12 +37,12 @@ for iter1 = 3:length(imaging.scenarios)
         acc_sig(:,iter2) = acc(y_pos(start_idx(iter1):start_idx(iter1)+sig_len-1,iter2),acc_win,imaging.frame_rate(iter1));
     end
 
-    fig = figure;
-    % acc_sig = acc_sig./max(abs(acc_sig),[],1);
-    acc_sig = acc_sig/max(abs(acc_sig),[],"all");
-    for iter2 = 1:size(acc_sig,1)
-        frame_num = iter2+start_idx(iter1)+2*acc_win-1;
-        imshow(squeeze(rawframes(:,:,:,frame_num)));
+    %fig = figure;
+    acc_sig = acc_sig./max(abs(acc_sig),[],"all");
+    for iter2 = select_frames    
+        figure;
+        frame_num = start_idx(iter1)+iter2-1;
+        imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
         hold on;
         for iter3 = 1:length(included_points)
             color_idx = min([max([round((acc_sig(iter2,iter3)+1)*256/2),1]),256]);
@@ -48,11 +51,13 @@ for iter1 = 3:length(imaging.scenarios)
             hold on;
         end
         hold off;
-        [A,map] = rgb2ind(frame2im(getframe(fig)),256);
-        if iter2 == 1
-            imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","LoopCount",Inf,"DelayTime",1);
-        else
-            imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","WriteMode","append","DelayTime",1);
-        end
+
+    
+        % [A,map] = rgb2ind(frame2im(getframe(fig)),256);
+        % if iter2 == 1
+        %     imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","LoopCount",Inf,"DelayTime",1);
+        % else
+        %     imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","WriteMode","append","DelayTime",1);
+        % end
     end
 end
