@@ -11,7 +11,7 @@ num_selected = 5;
 for iter1 = 1:length(freqs)
     clear rawframes 
     cycle = frame_rate/freqs(iter1);
-    file_name = strcat("Videos_22_06_13/",zoom,"_",dots,"_",num2str(freqs(iter1)),"Hz_",num2str(frame_rate),"fps.tif");
+    file_name = strcat("Videos/23_06_13/",zoom,"_",dots,"_",num2str(freqs(iter1)),"Hz_",num2str(frame_rate),"fps.tif");
     info = imfinfo(file_name);
     width = info(1).Width;
     height = info(1).Height;

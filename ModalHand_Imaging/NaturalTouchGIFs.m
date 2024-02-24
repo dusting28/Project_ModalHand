@@ -6,13 +6,13 @@ dot_size = 35;
 % color_map = flipud(colorcet('COOLWARM'));
 color_map = colorcet('COOLWARM');
 acc_win = 5;
-start_idx = [1,1,1,1,60];
+start_idx = [1,1,12,7,60];
 sig_len = 100;
 remove_points = [0,0,2,5,2];
 
 select_frames = [5, 15, 20, 25];
 
-for iter1 = 5
+for iter1 = 3:5
     file_name = strcat(imaging.scenarios(iter1),"_",num2str(imaging.frame_rate(iter1)),"FPS.tif");
     info = imfinfo(file_name);
     width = info(1).Width;

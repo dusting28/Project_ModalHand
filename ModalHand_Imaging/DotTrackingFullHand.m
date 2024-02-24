@@ -2,7 +2,7 @@ clc; clear; close all;
 
 zoom = "Zoom2";
 dots = "Dots";
-freqs = 50;%[50,200];
+freqs = [50,200];
 frame_rate = 2000;
 start_frame = [180,180];
 reference_frame = [0,0];
@@ -11,15 +11,9 @@ num_images = 4;
 % Create a cascade detector object.
 tracker = vision.PointTracker('MaxBidirectionalError',1);
 
-% zoom1_xbox = [175, 165, 1315, 1325]+179;
-% zoom1_ybox = [403, 305, 227, 355]+48;
-
-% zoom1_xbox = [170, 160, 1320, 1330];
-% zoom1_ybox = [433, 295, 217, 385];
-
 for iter1 = 1:length(freqs)
     cycle = frame_rate/freqs(iter1);
-    file_name = strcat("Videos_22_06_13/",zoom,"_",dots,"_",num2str(freqs(iter1)),"Hz_",num2str(frame_rate),"fps.tif");
+    file_name = strcat("Videos/23_06_13/",zoom,"_",dots,"_",num2str(freqs(iter1)),"Hz_",num2str(frame_rate),"fps.tif");
     info = imfinfo(file_name);
     width = info(1).Width;
     height = info(1).Height;
@@ -58,11 +52,11 @@ for iter1 = 1:length(freqs)
     title('Red box shows object region');
 
     % points = detectKAZEFeatures(im2gray(objectFrame),'ROI',objectRegion,'Threshold',.005,'NumOctaves',2);
-    points = detectKAZEFeatures(im2gray(objectFrame),'ROI',objectRegion,'Threshold',.003,'NumOctaves',2);
-    input_points = detectKAZEFeatures(im2gray(objectFrame),'ROI',inputRegion,'Threshold',.0003,'NumOctaves',2);
+    points = detectKAZEFeatures(im2gray(objectFrame),'ROI',objectRegion,'Threshold',.005,'NumOctaves',2);
+    input_points = detectKAZEFeatures(im2gray(objectFrame),'ROI',inputRegion,'Threshold',.005,'NumOctaves',2);
     driving_point = selectStrongest(input_points,1);
     driving_point = driving_point.Location;
-    point_locations = removeDots(points,15,cut_box);
+    point_locations = removeDots2(points,15,cut_box);
 
     pointImage = insertMarker(objectFrame,point_locations,'+','Color','red');
     figure;
@@ -104,7 +98,7 @@ for iter1 = 1:length(freqs)
         for iter3 = 2:size(y_displacement,2)
             color_idx = min([max([round((y_displacement(iter2,iter3)+1)*256/2),1]),256]);
             plot(squeeze(final_positions(iter2,iter3,1)),squeeze(final_positions(iter2,iter3,2)),...
-                '.','MarkerSize',40,'Color',squeeze(colormap(color_idx,:)))
+                '.','MarkerSize',35,'Color',squeeze(colormap(color_idx,:)))
         end
         hold off;
         frame = getframe(fig);
@@ -112,6 +106,7 @@ for iter1 = 1:length(freqs)
         close all;
     end
 
+    figure;
     filename = "testAnimated.gif"; % Specify the output file name
     for iter2 = 1:cycle
         [A,map] = rgb2ind(im{iter2},256);
@@ -122,5 +117,5 @@ for iter1 = 1:length(freqs)
         end
     end
     
-% release(videoPlayer);
+release(tracker);
 end
