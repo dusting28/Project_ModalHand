@@ -3,11 +3,9 @@ clc; clear; close all;
 zoom = "Zoom2";
 freqs = [50,200];
 frame_rate = 2000;
-
+acc_win = 5;
 desired_frames = 185;
-tracking_cell= cell(length(zoom),length(freqs));
-displacement_cell = cell(length(zoom),length(freqs));
-gif = false;
+color_map = colorcet('COOLWARM');
 
 addpath("Videos/23_06_13/")
 
@@ -25,14 +23,16 @@ for iter4 = 1:length(zoom)
             start_frame = [50,14]; 
             dot_size = 35;
             if freqs(iter1) == 50
-                cut_x = [80, 1500];
+                cut_x = [70, 1500];
                 cut_y = [935, 800];
-                cut_thickness = 60;
+                cut_thickness = 65;
+                select_frames = [25, 31, 37, 43];
             end
             if freqs(iter1) == 200
-                cut_x = [80, 1500];
-                cut_y = [920, 780];
-                cut_thickness = 35;
+                cut_x = [55, 1450];
+                cut_y = [940, 650];
+                cut_thickness = 65;
+                select_frames = [7, 9, 11, 13];
             end
             input_x = [80 280];
             input_y = [1000 1200];
@@ -56,7 +56,7 @@ for iter4 = 1:length(zoom)
 
         if zoom(iter4) == "Zoom2"
             points = detectKAZEFeatures(objectFrame(:,:,1),'ROI',objectRegion,'Threshold',.005,'NumOctaves',2);
-            point_locations = maskDots(points,20,cut_x,cut_y,cut_thickness);
+            point_locations = maskDots(points,15,cut_x,cut_y,cut_thickness);
         end
         input_points = detectKAZEFeatures(im2gray(objectFrame),'ROI',inputRegion,'Threshold',.0003,'NumOctaves',2);
         driving_point = selectStrongest(input_points,1);
@@ -82,50 +82,48 @@ for iter4 = 1:length(zoom)
         cycle_positions = tracked_positions(max_idx:max_idx+desired_frames-1,:,:);
         y_displacement = squeeze(cycle_positions(:,:,2));
 
-        for iter2 = 1:size(y_displacement,2)
-            y_displacement(:,iter2) = y_displacement(:,iter2) - movmean(y_displacement(:,iter2),round(frame_rate/freqs(iter1)));
+        acc_sig = zeros(size(y_displacement,1),size(y_displacement,2)-1);
+        for iter2 = 2:size(y_displacement,2)
+            acc_sig(:,iter2-1) = y_displacement(:,iter2) - movmean(y_displacement(:,iter2),round(frame_rate/freqs(iter1)));
         end
+        % 
+        % input_y = squeeze(y_displacement(:,1));
+        % input_amp = (max(input_y) - min(input_y))/2;
+        % input_y = input_y/input_amp;
+        % y_displacement = y_displacement/input_amp;
+        % 
+        % figure;
+        % plot(input_y);
+        % saveas(gcf,strcat("InputSignal_",num2str(freqs(iter1)),"Hz"),"epsc")
     
-        input_y = squeeze(y_displacement(:,1));
-        input_amp = (max(input_y) - min(input_y))/2;
-        input_y = input_y/input_amp;
-        y_displacement = y_displacement/input_amp;
-
         figure;
-        plot(input_y);
-        saveas(gcf,strcat("InputSignal_",num2str(freqs(iter1)),"Hz"),"epsc")
-    
-        figure;
-        imshow(squeeze(rawframes(:,:,:,start_frame(iter1))));
+        imshow(squeeze(rawframes(:,:,:,start_frame(iter1)+max_idx-1)));
         hold on;
         for iter3 = 2:size(y_displacement,2)
-                plot(squeeze(cycle_positions(iter2,iter3,1)),squeeze(cycle_positions(iter2,iter3,2)),...
+                plot(squeeze(cycle_positions(1,iter3,1)),squeeze(cycle_positions(1,iter3,2)),...
                     '.','MarkerSize',dot_size,'Color','k')
         end
         hold off;
-        xlim([0,width]);
-        ylim([0,height]);
         saveas(gcf,strcat("TrackedPoints_",num2str(freqs(iter1)),"Hz"),"tiffn")
 
-        color_map = colorcet('COOLWARM');
-        for iter2 = 1:1
+        % acc_sig = zeros(size(y_displacement,1)-2*acc_win,size(y_displacement,2)-1);
+        % for iter2 = 2:size(y_displacement,2)
+        %     acc_sig(:,iter2-1) = acc(y_displacement(1:size(y_displacement,1),iter2),acc_win,frame_rate);
+        % end
+
+        acc_sig = acc_sig./max(abs(acc_sig),[],"all");
+        for iter2 = select_frames    
             figure;
-            for iter3 = 2:size(y_displacement,2)
-                color_idx = min([max([round((y_displacement(iter2,iter3)+1)*256/2),1]),256]);
-                plot(squeeze(cycle_positions(iter2,iter3,1)),squeeze(cycle_positions(iter2,iter3,2)),...
+            frame_num = start_frame(iter1)+iter2+max_idx-2;
+            imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
+            hold on;
+            for iter3 = 1:size(acc_sig,2)
+                color_idx = min([max([round((acc_sig(iter2,iter3)+1)*256/2),1]),256]);
+                plot(cycle_positions(iter2,iter3+1,1),cycle_positions(iter2,iter3+1,2),...
                     '.','MarkerSize',dot_size,'Color',squeeze(color_map(color_idx,:)))
                 hold on;
             end
             hold off;
-            xlim([0,width]);
-            ylim([0,height]);
-            pbaspect([width height 1])
-            saveas(gcf,strcat("Frame",num2str(iter2),"_",num2str(freqs(iter1)),"Hz"),"epsc")
         end
-    
-        tracking_cell{iter4,iter1} = cycle_positions;
-        displacement_cell{iter4,iter1} = y_displacement;
     end
 end
-
-save ImageData_MultiCycle.mat zoom freqs frame_rate tracking_cell displacement_cell
