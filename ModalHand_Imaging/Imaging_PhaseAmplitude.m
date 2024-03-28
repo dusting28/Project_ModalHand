@@ -199,6 +199,13 @@ for iter1 = 1:length(imaging.zoom)
         ylim([0,height]);
         pbaspect([width height 1])
         saveas(gcf,strcat("Amplitude_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
+
+        figure(100+iter2);
+        semilogy(sorted_distance,amplitude(sort_idx),'.','MarkerSize',20)
+        xline(15*10^-3)
+        xline(62*10^-3)
+        ylim([.01,1]);
+        hold on;
        
     end
 end
