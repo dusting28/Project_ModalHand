@@ -9,6 +9,7 @@ start_idx = [1,1,1,1,50];
 sig_len = 100;
 remove_points = [0,0,2,5,2];
 scenario = 5;
+MCP_idx = 32;
 
 included_points = 1:3:size(imaging.tracking_cell{scenario},2);
 
@@ -47,6 +48,22 @@ min_tissue = min([potts_lower; zhang_lower]);
 max_tissue = max([potts_upper; zhang_upper]);
 
 normAmp = flipud(movmean(amp_sig,3))/max(movmean(amp_sig,3));
+
+linearCoefficients = polyfit(x_pos, normAmp, 1);          % Coefficients
+yfit = polyval(linearCoefficients, x_pos);      % Estimated  Regression Line
+%yfit = (x_pos(MCP_idx)-x_pos)/x_pos(MCP_idx);
+%yfit(yfit<0) = 0;
+SStot = sum((normAmp'-mean(normAmp)).^2);                    % Total Sum-Of-Squares
+SSres = sum((normAmp'-yfit).^2);                       % Residual Sum-Of-Squares
+Rsq = 1-SSres/SStot;
+disp(Rsq);
+disp(-linearCoefficients(2)/linearCoefficients(1)-x_pos(MCP_idx))
+
+figure;
+plot(x_pos, normAmp,'bo');
+hold on;
+plot(x_pos, yfit,'b');
+hold off;
 
 linearCoefficients = polyfit(x_pos, log(normAmp), 1);          % Coefficients
 yfit = polyval(linearCoefficients, x_pos);          % Estimated  Regression Line

@@ -114,7 +114,22 @@ for iter1 = 1:num_plots
     ylim([-1, 3])
     hold off
     saveas(gcf,strcat("Fixed_Loc",num2str(iter1),"_Admittance"),'epsc')
+
+    figure;
+    for iter2 = 1:size(lowRes.free_tf,1)
+        plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.free_tf{iter2,loc_idx})),kernal),freq_up),'k')
+        hold on
+    end
+    for iter2 = 1:size(lowRes.fixed_tf,1)
+        plot(freq_up,csapi(freq,movmean(log10(abs(lowRes.fixed_tf{iter2,loc_idx})),kernal),freq_up),'r')
+        hold on
+    end
+    xlim([15,400])
+    ylim([-1, 3])
+
 end
+
+%     
 
 %% Correlation Values
 num_plots = length(y_locations)-not(include_probe);

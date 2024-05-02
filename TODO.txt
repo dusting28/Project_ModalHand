@@ -1,0 +1,10 @@
+TODO:
+	Analysis:
+		Remove inertial dynamics due to half of force sensor and probe tip?
+		Remove dynamics from force sensor filter?
+	Figure 2: Stack bar plot vertically (see Powerpoint)
+	Figure 2: Make B and C be waterfall plots instead
+	Figure 2: Mulitply F by 2 (power already accounted for in energy)
+	Figure 2: Remove G
+	Figure 3: Make C2 only data and C3 only model. Make C4 pearson correlations (maybe normalized cross-corrlation instead?)
+
