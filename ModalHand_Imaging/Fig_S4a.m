@@ -103,7 +103,6 @@ for iter4 = 1:length(zoom)
 
         figure;
         plot(input_y);
-        saveas(gcf,strcat("InputSignal_",num2str(freqs(iter1)),"Hz"),"epsc")
     
         figure;
         imshow(squeeze(rawframes(:,:,:,start_frame(iter1))));
@@ -115,7 +114,7 @@ for iter4 = 1:length(zoom)
         hold off;
         xlim([0,width]);
         ylim([0,height]);
-        saveas(gcf,strcat("TrackedPoints_",num2str(freqs(iter1)),"Hz"),"tiffn")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_TrackedPoints_",num2str(freqs(iter1)),"Hz"),"tiffn")
 
         color_map = colorcet('COOLWARM');
         for iter2 = round(linspace(1,round(cycle/2),4))
@@ -133,9 +132,7 @@ for iter4 = 1:length(zoom)
             xlim([0,width]);
             ylim([0,height]);
             pbaspect([width height 1])
-            saveas(gcf,strcat("Frame",num2str(iter2),"_",num2str(freqs(iter1)),"Hz"),"tiffn")
             timepoint = (iter2-1)/frame_rate;
-            disp(timepoint)
             figure;
             x = -pi:.01:3*pi;
             plot(x,sin(x))
@@ -143,7 +140,6 @@ for iter4 = 1:length(zoom)
             color_idx = min([max([round((sin(phase)+1)*256/2),1]),256]);
             hold on;
             plot(phase,sin(phase),'.','MarkerSize',dot_size,'Color',squeeze(color_map(color_idx,:)))
-            saveas(gcf,strcat("Input",num2str(iter2),"_",num2str(freqs(iter1)),"Hz"),"epsc")
         end
     
         tracking_cell{iter4,iter1} = cycle_positions;

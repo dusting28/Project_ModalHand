@@ -120,10 +120,15 @@ end
 
 % Plot Data Set Deconstruction
 unwrappedAdmittance(reconstruct_freq,highRes,free_standing_fft,kernal,include_probe);
+title("Free - Standing Components")
 unwrappedAdmittance(reconstruct_freq,highRes,free_remainder_fft,kernal,include_probe);
+title("Free - Remaining (Non-standing) Components")
 unwrappedAdmittance(highRes.freq,highRes,fixed_original,kernal,include_probe);
+title("Fixed - Original Data")
 unwrappedAdmittance(reconstruct_freq,highRes,free_reconstruct_fft,kernal,include_probe);
+title("Free Standing + Fixed Original")
 unwrappedAdmittance(highRes.freq,highRes,free_original,kernal,include_probe);
+title("Free - Original Data")
 
 % Plot RMS amplitude
 for iter1 = 1:num_modes(1)
@@ -191,6 +196,9 @@ plot(freq_up,csapi(highRes.freq,movmean(reconstruct_corr,kernal),freq_up));
 hold off;
 xlim([15,400])
 ylim([.6,1])
+title("Correlation with Original Free Data Set")
+legend(["Free (Standing Modes)", "Fixed Set", "Combined"])
+ylabel("Pearson Correlation")
 
 %% Plot COVs and Traveling Index
 
@@ -206,12 +214,14 @@ figure;
 b = bar(free_index,'FaceColor',[1, 1, 1]);
 b.FaceColor = 'flat';
 ylim([0,1])
+title("Travelling Index (Free)")
 
 % Plot COVs
 figure;
 b = bar(100*S_free(1:num_display).^2./sum(S_free.^2),'FaceColor',[1, 1, 1]);
 b.FaceColor = 'flat';
 ylim([0,100])
+title("Relative Energy (Free)")
 
 %% Plot Modal Coordinates
 figure;
@@ -219,7 +229,7 @@ for iter1 = 1:num_display
     [mc_freq, modal_coordinates] = fft_spectral(real(V_free(iter1,:)),fs);
     freq_idx = find(and(mc_freq>=15,mc_freq<=400));
     centroid = sum(abs(modal_coordinates(freq_idx)).*mc_freq(freq_idx))./sum(abs(modal_coordinates(freq_idx)));
-    disp(centroid);
+    disp(strcat("Centroid for Mode ",num2str(iter1),": ",num2str(round(centroid))," Hz"));
     freq_up = linspace(mc_freq(1),mc_freq(end),1000);
     plot(freq_up,csapi(mc_freq,movmean(20*log10(abs(modal_coordinates)),kernal)-max(movmean(20*log10(abs(modal_coordinates)),kernal)),freq_up));
     hold on;
@@ -227,41 +237,44 @@ end
 xlim([15,400])
 ylim([-30, 1])
 hold off;
+title("Normailized Modal Coordinates (Free)")
+legend(["Mode 1", "Mode 2", "Mode 3"]);
 
 figure;
 for iter1 = 1:num_display
     [mc_freq, modal_coordinates] = fft_spectral(free_index(iter1)*S_free(iter1)*real(V_free(iter1,:)),fs);
     freq_idx = find(and(mc_freq>=15,mc_freq<=400));
     contribution_t(:,iter1) = abs(modal_coordinates);
-    centroid = sum(abs(modal_coordinates(freq_idx)).*mc_freq(freq_idx))./sum(abs(modal_coordinates(freq_idx)));
-    disp(centroid);
     freq_up = linspace(mc_freq(1),mc_freq(end),1000);
-    plot(freq_up,csapi(mc_freq,movmean(20*log10(contribution_t(:,iter1)),kernal),freq_up));
+    plot(freq_up,csapi(mc_freq,movmean(10*log10(contribution_t(:,iter1)),kernal),freq_up));
     hold on;
 end
 xlim([15,400])
 hold off;
+title("Travelling Contribution to Modal Coordinates (Free)")
+legend(["Mode 1", "Mode 2", "Mode 3"]);
 
 figure;
 for iter1 = 1:num_display
     [mc_freq, modal_coordinates] = fft_spectral((1-free_index(iter1))*S_free(iter1)*real(V_free(iter1,:)),fs);
     freq_idx = find(and(mc_freq>=15,mc_freq<=400));
     contribution_s(:,iter1) = abs(modal_coordinates);
-    centroid = sum(abs(modal_coordinates(freq_idx)).*mc_freq(freq_idx))./sum(abs(modal_coordinates(freq_idx)));
-    disp(centroid);
     freq_up = linspace(mc_freq(1),mc_freq(end),1000);
-    plot(freq_up,csapi(mc_freq,movmean(20*log10(contribution_s(:,iter1)),kernal),freq_up));
+    plot(freq_up,csapi(mc_freq,movmean(10*log10(contribution_s(:,iter1)),kernal),freq_up));
     hold on;
 end
 xlim([15,400])
 hold off;
+title("Standing Contribution to Modal Coordinates (Free)")
+legend(["Mode 1", "Mode 2", "Mode 3"]);
 
 figure;
-plot(freq_up,csapi(mc_freq,movmean(20*log10(sum(contribution_s,2)./sum(contribution_t,2)),kernal),freq_up));
+plot(freq_up,csapi(mc_freq,movmean(10*log10(sum(contribution_s,2)./sum(contribution_t,2)),kernal),freq_up));
 % hold on;
 % plot(freq_up,csapi(mc_freq,movmean(20*log10(sum(contribution_s,2)),kernal),freq_up));
 xlim([15,400])
 hold off;
+title("Standing Relative to Travelling Contribution (Free)")
 
 %% Time Domain
 
@@ -298,14 +311,14 @@ end
 %% Plot Individual Standing Modes
 color_map = colorcet('COOLWARM');
 position = highRes.yCord(2-include_probe:3:end);
-disp(highRes.yDIP)
-disp(highRes.yMCP)
+disp(strcat("DIP Location: ",num2str(highRes.yDIP)))
+disp(strcat("MCP Location: ",num2str(highRes.yMCP)))
 for iter1 = 1:num_display
     single_axis = singleAxis(real(free_s(:,iter1))',include_probe);
     crossing_idx=find(single_axis(1:end-1).*single_axis(2:end)<0);
     crossing_slope=(single_axis(crossing_idx(1)+1)-single_axis(crossing_idx(1)))./(position(crossing_idx(1)+1)-position(crossing_idx(1)));
     crossing=-single_axis(crossing_idx(1))./crossing_slope+position(crossing_idx(1));
-    disp(crossing)
+    disp(strcat("Zero Crossing for Mode ", num2str(iter1),": ", num2str(round(crossing))))
     mag_lim = max(abs(real(free_s(:,iter1))));
     mode_sign = sign(real(free_s(1,iter1)));
     surfPlot(mode_sign*real(free_s(:,iter1))',kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Real - Free ",num2str(iter1)),false,include_probe);
@@ -314,13 +327,11 @@ end
 % Plot frames
 color_map = colorcet('COOLWARM');
 position = highRes.yCord(2-include_probe:3:end);
-disp(highRes.yDIP)
-disp(highRes.yMCP)
 for iter1 = 1:num_display
     single_mode = free_s(:,iter1)*S_free(iter1)*V_free(iter1,:);
     mag_lim = max(abs(real(single_mode)),[],"all");
     for iter2 = 1:10
         time_frame = real(single_mode(:,360+(iter2)*5))';
-        surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Mode ",num2str(iter1), "- Frame ", num2str(iter2)),false,include_probe);
+        surfPlot(time_frame,kernal,highRes,[-mag_lim, mag_lim],color_map,strcat("Standing Mode ",num2str(iter1), " - Frame ", num2str(iter2)),false,include_probe);
     end    
 end

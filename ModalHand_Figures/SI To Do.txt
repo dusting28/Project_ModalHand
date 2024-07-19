@@ -1,8 +1,0 @@
-Videos (Adobe Premier)
-	1. Videos of hand tracking with dots?
-	2. Videos without dots (multiple frequencies, whole hand)
-	3. Videos of modes from COD?
-
-Data (Include in statement in Main linking to Zenodo)
-	1. High Res Green's Functions (fixed and free)
-	2. Low Res Green's Functions (fixed and free)

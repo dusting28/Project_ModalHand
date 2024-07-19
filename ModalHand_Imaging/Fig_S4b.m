@@ -38,7 +38,7 @@ for iter1 = 1:length(imaging.zoom)
         set(gca,'Ydir','reverse')
         xlim([0,sorted_distance(end)]);
         ylim([0,cut_time(end)]);
-        saveas(gcf,strcat("SurfPlot_",num2str(imaging.freqs(iter2)),"Hz"),"tiffn")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_SurfPlot_",num2str(imaging.freqs(iter2)),"Hz"),"tiffn")
 
         % Plot first frame
         figure;
@@ -54,12 +54,12 @@ for iter1 = 1:length(imaging.zoom)
         xlim([0,width]);
         ylim([0,height]);
         pbaspect([width height 1])
-        saveas(gcf,strcat("Frame1_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_Frame1_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
 
         % Plot input signal
         figure;
         plot(cut_displacement(:,1));
-        saveas(gcf,strcat("InputSignal_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_InputSignal_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
 
         % Fit cos to data at each location on finger
         phase_shift = zeros(1,size(cut_displacement,2));
@@ -116,7 +116,7 @@ for iter1 = 1:length(imaging.zoom)
         xlim([0,width]);
         ylim([0,height]);
         pbaspect([width height 1])
-        saveas(gcf,strcat("PhaseShift_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_PhaseShift_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
         
         figure;
         finger_phase = zeros(1,sum(imaging.tracking_cell{iter1,iter2}(1,2:end,1) >= finger));
@@ -198,7 +198,7 @@ for iter1 = 1:length(imaging.zoom)
         xlim([0,width]);
         ylim([0,height]);
         pbaspect([width height 1])
-        saveas(gcf,strcat("Amplitude_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
+        saveas(gcf,strcat("MATLAB_Plots/FigS4_Amplitude_",num2str(imaging.freqs(iter2)),"Hz"),"epsc")
 
         figure(100+iter2);
         semilogy(sorted_distance,amplitude(sort_idx),'.','MarkerSize',20)

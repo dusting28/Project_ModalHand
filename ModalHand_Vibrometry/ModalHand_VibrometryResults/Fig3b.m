@@ -11,7 +11,7 @@ highRes = load("HighRes_ProcessedData.mat");
 %% Reformat Loaded Data
 kernal = 3;
 sample_freqs = [15, 50, 100, 200, 400];
-include_probe = true;
+include_probe = false;
 
 sample_idx = zeros(1,length(sample_freqs));
 for iter1 = 1:length(sample_freqs)
@@ -40,7 +40,8 @@ disp(mean(20*log10(abs(free_whiteNoise)./abs(fixed_whiteNoise))));
 dB_distance = zeros(1,length(sample_freqs));
 for iter1 = 1:length(sample_freqs)
     %surfPlot(abs(fixed_admittance(sample_idx(iter1),:)),kernal,highRes,[-1,3],turbo,strcat("Fixed Hand - ", num2str(sample_freqs(iter1))," Hz Admittance"),true,include_probe)
-    %surfPlot(abs(free_admittance(sample_idx(iter1),:)),kernal,highRes,[-1,3],turbo,strcat("Free Hand - ", num2str(sample_freqs(iter1))," Hz Admittance"),true,include_probe)
+    surfPlot(squeeze(abs(free_admittance(sample_idx(iter1),:))),...
+        kernal,highRes,[-1,3],turbo,strcat("Free Hand - ", num2str(sample_freqs(iter1))," Hz Admittance"),true,include_probe)
     dB_distance(iter1) = (mean(20*log10(abs(free_admittance(sample_idx(iter1),:))./abs(fixed_admittance(sample_idx(iter1),:)))));
 end
 
@@ -111,19 +112,19 @@ for iter1 = 1:length(sample_freqs)
     
     % Residual Sum-Of-Squares
      
-    mdl = fitlm(position(position<=highRes.yMCP),normalized_free(position<=highRes.yMCP));
-    Rsq = 1-SSres/SStot;
-    disp(strcat("Linear Fit:", num2str(mdl.Rsquared.Ordinary)))
+    % mdl = fitlm(position(position<=highRes.yMCP),normalized_free(position<=highRes.yMCP));
+    % Rsq = 1-SSres/SStot;
+    % disp(strcat("Linear Fit:", num2str(mdl.Rsquared.Ordinary)))
 
-    figure(100);
-    plot(position_up, csapi(position,normalized_free,position_up))
-    xline(highRes.yProbe, 'k')
-    xline(63, 'k')
-    xlim([0,highRes.yMCP])
-    ylim([0,1.25]);
-    title(strcat(num2str(sample_freqs(iter1))," Hz"))
-    xlabel("Distance from Probe (mm)")
-    ylabel("Normalized Admittance")
+    % figure(100);
+    % plot(position_up, csapi(position,normalized_free,position_up))
+    % xline(highRes.yProbe, 'k')
+    % xline(63, 'k')
+    % xlim([0,highRes.yMCP])
+    % ylim([0,1.25]);
+    % title(strcat(num2str(sample_freqs(iter1))," Hz"))
+    % xlabel("Distance from Probe (mm)")
+    % ylabel("Normalized Admittance")
 
 end
 hold off;

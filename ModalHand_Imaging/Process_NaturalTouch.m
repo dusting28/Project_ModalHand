@@ -5,7 +5,7 @@ frame_rate = [1000, 2000, 2000, 2000, 2000];
 start_frame = [1,1,1,1,1]; 
 tracking_win = 30;
 
-tracking_cell= cell(length(scenarios),1);
+tracking_cell = cell(length(scenarios),1);
 
 addpath("Videos/NaturalTouch/")
 

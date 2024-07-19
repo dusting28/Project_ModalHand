@@ -27,22 +27,30 @@ fixed_impedance_dB = 20*log10(fixed_impedance./fixed_impedance(:,idx_100));
 free_impedance_dB = 20*log10(free_impedance./fixed_impedance(:,idx_100));
 fixed_impedance_avg = movmean(mean(fixed_impedance_dB,1),kernal);
 fixed_impedance_std = movmean(std(fixed_impedance_dB,0,1),kernal);
+fixed_impedance_qrt25 = movmean(quantile(fixed_impedance_dB,0.25,1),kernal);
+fixed_impedance_qrt75 = movmean(quantile(fixed_impedance_dB,0.75,1),kernal);
 free_impedance_avg = movmean(mean(free_impedance_dB,1),kernal);
 free_impedance_std = movmean(std(free_impedance_dB,0,1),kernal);
+free_impedance_qrt25 = movmean(quantile(free_impedance_dB,0.25,1),kernal);
+free_impedance_qrt75 = movmean(quantile(free_impedance_dB,0.75,1),kernal);
 
 figure;
 freq_up = linspace(freq(1),freq(end),1000);
 plot(freq_up,csapi(freq,fixed_impedance_avg,freq_up),'r');
 hold on;
-plot(freq_up,csapi(freq,fixed_impedance_avg-fixed_impedance_std,freq_up),'r');
+% plot(freq_up,csapi(freq,fixed_impedance_avg-fixed_impedance_std,freq_up),'r');
+plot(freq_up,csapi(freq,fixed_impedance_qrt25,freq_up),'r');
 hold on;
-plot(freq_up,csapi(freq,fixed_impedance_avg+fixed_impedance_std,freq_up),'r');
+% plot(freq_up,csapi(freq,fixed_impedance_avg+fixed_impedance_std,freq_up),'r');
+plot(freq_up,csapi(freq,fixed_impedance_qrt75,freq_up),'r');
 hold on;
 plot(freq_up,csapi(freq,free_impedance_avg,freq_up),'b');
 hold on;
-plot(freq_up,csapi(freq,free_impedance_avg-free_impedance_std,freq_up),'b');
+% plot(freq_up,csapi(freq,free_impedance_avg-free_impedance_std,freq_up),'b');
+plot(freq_up,csapi(freq,free_impedance_qrt25,freq_up),'b');
 hold on;
-plot(freq_up,csapi(freq,free_impedance_avg+free_impedance_std,freq_up),'b');
+% plot(freq_up,csapi(freq,free_impedance_avg+free_impedance_std,freq_up),'b');
+plot(freq_up,csapi(freq,free_impedance_qrt75,freq_up),'b');
 hold off;
 ylim([-30, 30])
 xticks([15 50 100 200 400])

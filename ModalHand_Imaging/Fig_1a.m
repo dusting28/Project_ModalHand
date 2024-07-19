@@ -2,7 +2,6 @@ clc; clear; close all;
 addpath("Videos/NaturalTouch/")
 
 imaging = load("ImageData_NaturalTouch.mat");
-dot_size = 35;
 % color_map = flipud(colorcet('COOLWARM'));
 color_map = colorcet('COOLWARM');
 acc_win = 5;
@@ -13,6 +12,13 @@ remove_points = [0,0,2,5,2];
 select_frames = [5, 15, 20, 25];
 
 for iter1 = 3:5
+    
+    if iter1 == 3
+        dot_size = 45;
+    else
+        dot_size = 35;
+    end
+
     file_name = strcat(imaging.scenarios(iter1),"_",num2str(imaging.frame_rate(iter1)),"FPS.tif");
     info = imfinfo(file_name);
     width = info(1).Width;
@@ -42,7 +48,8 @@ for iter1 = 3:5
     for iter2 = select_frames    
         figure;
         frame_num = start_idx(iter1)+iter2-1;
-        imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
+        % imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
+        imshow(0.75+0.25*rgb2gray(squeeze(rawframes(:,:,:,frame_num))));
         hold on;
         for iter3 = 1:length(included_points)
             color_idx = min([max([round((acc_sig(iter2,iter3)+1)*256/2),1]),256]);
@@ -52,12 +59,28 @@ for iter1 = 3:5
         end
         hold off;
 
+        saveas(gcf,strcat("MATLAB_Plots/Fig1_",imaging.scenarios(iter1),"_Frame",num2str(iter2)),"tiffn")
+    end
     
-        % [A,map] = rgb2ind(frame2im(getframe(fig)),256);
-        % if iter2 == 1
-        %     imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","LoopCount",Inf,"DelayTime",1);
-        % else
-        %     imwrite(A,map,strcat(imaging.scenarios(iter1),"_","GIF.gif"),"gif","WriteMode","append","DelayTime",1);
-        % end
+    iter2 = 0;
+    for frame_num = start_idx(iter1):start_idx(iter1)+40 
+        iter2 = iter2+1;
+        fig = figure;
+        imshow(squeeze(rawframes(:,:,:,frame_num)));
+        hold on;
+        for iter3 = 1:length(included_points)
+            color_idx = min([max([round((acc_sig(iter2,iter3)+1)*256/2),1]),256]);
+            plot(x_pos(frame_num,iter3),y_pos(frame_num,iter3),...
+                '.','MarkerSize',dot_size,'Color',squeeze(color_map(color_idx,:)))
+            hold on;
+        end
+        hold off;
+
+        [A,map] = rgb2ind(frame2im(getframe(fig)),256);
+        if iter2 == 1
+            imwrite(A,map,strcat("MATLAB_Plots/",imaging.scenarios(iter1),"_","GIF.gif"),"gif","LoopCount",Inf,"DelayTime",1);
+        else
+            imwrite(A,map,strcat("MATLAB_Plots/",imaging.scenarios(iter1),"_","GIF.gif"),"gif","WriteMode","append","DelayTime",1);
+        end
     end
 end

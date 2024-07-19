@@ -9,6 +9,8 @@ color_map = colorcet('COOLWARM');
 
 addpath("Videos/23_06_13/")
 
+tracking_cell = cell(length(freqs),1);
+
 for iter4 = 1:length(zoom)
     for iter1 = 1:length(freqs)
         clear rawframes 
@@ -30,7 +32,7 @@ for iter4 = 1:length(zoom)
             end
             if freqs(iter1) == 200
                 cut_x = [55, 1450];
-                cut_y = [940, 650];
+                cut_y = [942, 655];
                 cut_thickness = 65;
                 select_frames = [7, 9, 11, 13];
             end
@@ -77,6 +79,23 @@ for iter4 = 1:length(zoom)
           [tracked_points,validity] = tracker(frame);
           tracked_positions(iter2-start_frame(iter1)+1,:,:) = tracked_points; 
         end
+
+        [~,sorted_idx] = sort(tracked_positions(1,2:end,1));
+        sorted_points = tracked_positions(:,sorted_idx+1,:);
+        complete_points = zeros(size(sorted_points,1),120,size(sorted_points,3));
+        dx = sorted_points(1,2:end,1) - sorted_points(1,1:end-1,1);
+        [~,cut_idx] = maxk(dx,39);
+        cut_idx = sort(cut_idx);
+        cut_idx = [0, cut_idx, size(sorted_points,2)];
+        skip_idx = 0;
+        for iter2 = 1:length(cut_idx)-1
+            [~,sorted_idx2] = sort(sorted_points(1,cut_idx(iter2)+1:cut_idx(iter2+1),2));
+            group_size = length(sorted_idx2);
+            complete_points(:,cut_idx(iter2)+1+skip_idx:cut_idx(iter2+1)+skip_idx,:) = sorted_points(:,cut_idx(iter2)+sorted_idx2,:);
+            skip_idx = skip_idx + (3-group_size);
+        end
+
+        tracking_cell{iter1} = complete_points;
         
         [~, max_idx] = max(tracked_positions(1:cycle,1,2));
         cycle_positions = tracked_positions(max_idx:max_idx+desired_frames-1,:,:);
@@ -104,7 +123,7 @@ for iter4 = 1:length(zoom)
                     '.','MarkerSize',dot_size,'Color','k')
         end
         hold off;
-        saveas(gcf,strcat("TrackedPoints_",num2str(freqs(iter1)),"Hz"),"tiffn")
+        
 
         % acc_sig = zeros(size(y_displacement,1)-2*acc_win,size(y_displacement,2)-1);
         % for iter2 = 2:size(y_displacement,2)
@@ -115,7 +134,8 @@ for iter4 = 1:length(zoom)
         for iter2 = select_frames    
             figure;
             frame_num = start_frame(iter1)+iter2+max_idx-2;
-            imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
+            % imshow(squeeze((rawframes(:,:,:,frame_num)/4)+.75));
+            imshow(0.75+0.25*rgb2gray(squeeze(rawframes(:,:,:,frame_num))));
             hold on;
             for iter3 = 1:size(acc_sig,2)
                 color_idx = min([max([round((acc_sig(iter2,iter3)+1)*256/2),1]),256]);
@@ -124,6 +144,9 @@ for iter4 = 1:length(zoom)
                 hold on;
             end
             hold off;
+            saveas(gcf,strcat("MATLAB_Plots/FigS3_",num2str(freqs(iter1)),"Hz_Frame",num2str(iter2)),"tiffn")
         end
     end
 end
+
+save ImageData_EngineeredTouch.mat freqs frame_rate tracking_cell

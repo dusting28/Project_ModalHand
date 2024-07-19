@@ -1,6 +1,3 @@
-Fig. 1
-	Add markers for DIP, PIP, MCP (U)
-
 Fig. 2
 	Terminology (Y)
 		Modal coordinates
@@ -20,12 +17,16 @@ Swap B and C (W)
 Remove D? (U)
 
 All Figs:
-Change max font size to 12 (U)
-Change all other fonts to 6 (U)
-Reduce width to 7 inches (U)
 Change units to round brackets (Y)
 
 For Green's Functions:
 Change 13 for motu scale factor to 18? (U)
-Look at force sensor filter? (U)
-Look at inertia effects of force sensor? (U)
+
+SI Videos (Adobe Premier)
+	1. Videos of hand tracking with dots?
+	2. Videos without dots (multiple frequencies, whole hand)
+	3. Videos of modes from COD?
+
+SI Data (Include in statement in Main linking to Zenodo)
+	1. High Res Green's Functions (fixed and free)
+	2. Low Res Green's Functions (fixed and free)
