@@ -9,7 +9,7 @@ start_idx = [1,1,12,7,60];
 sig_len = 100;
 remove_points = [0,0,2,5,2];
 
-select_frames = [5, 15, 20, 25];
+select_frames = [1, 16, 21, 26];
 
 for iter1 = 3:5
     
@@ -37,10 +37,10 @@ for iter1 = 3:5
     
     x_pos = squeeze(imaging.tracking_cell{iter1}(:,included_points,1));
     y_pos = squeeze(imaging.tracking_cell{iter1}(:,included_points,2));
-    acc_sig = zeros(sig_len-2*acc_win,length(included_points));
+    acc_sig = zeros(sig_len,length(included_points));
     
     for iter2 = 1:length(included_points)
-        acc_sig(:,iter2) = acc(y_pos(start_idx(iter1):start_idx(iter1)+sig_len-1,iter2),acc_win,imaging.frame_rate(iter1));
+        acc_sig(:,iter2) = acc(y_pos(start_idx(iter1)-acc_win:start_idx(iter1)+sig_len+acc_win-1,iter2),acc_win,imaging.frame_rate(iter1));
     end
 
     %fig = figure;
