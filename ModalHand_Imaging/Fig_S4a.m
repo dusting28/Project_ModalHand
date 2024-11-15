@@ -8,6 +8,7 @@ desired_frames = 185;
 tracking_cell= cell(length(zoom),length(freqs));
 displacement_cell = cell(length(zoom),length(freqs));
 gif = false;
+pixels_to_mm = 20/185;
 
 addpath("Videos/23_04_12/")
 
@@ -100,6 +101,8 @@ for iter4 = 1:length(zoom)
         input_amp = (max(input_y) - min(input_y))/2;
         input_y = input_y/input_amp;
         y_displacement = y_displacement/input_amp;
+
+        disp(strcat("Max Displ: ", num2str(input_amp*pixels_to_mm)));
 
         figure;
         plot(input_y);

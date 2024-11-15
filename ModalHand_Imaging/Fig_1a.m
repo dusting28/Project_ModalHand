@@ -38,12 +38,17 @@ for iter1 = 3:5
     x_pos = squeeze(imaging.tracking_cell{iter1}(:,included_points,1));
     y_pos = squeeze(imaging.tracking_cell{iter1}(:,included_points,2));
     acc_sig = zeros(sig_len,length(included_points));
+
+    [~,right_iter] = max(x_pos(1,:));
+    [~,left_iter] = min(x_pos(1,:));
+    pixel_to_mm = (3*39)/((x_pos(1,left_iter)-x_pos(1,right_iter))^2 + (y_pos(1,left_iter)-y_pos(1,right_iter))^2 )^.5;
     
     for iter2 = 1:length(included_points)
-        acc_sig(:,iter2) = acc(y_pos(start_idx(iter1)-acc_win:start_idx(iter1)+sig_len+acc_win-1,iter2),acc_win,imaging.frame_rate(iter1));
+        acc_sig(:,iter2) = acc(pixel_to_mm*y_pos(start_idx(iter1)-acc_win:start_idx(iter1)+sig_len+acc_win-1,iter2),acc_win,imaging.frame_rate(iter1));
     end
 
     %fig = figure;
+    disp(strcat("Max Acceleration: ", num2str(max(abs(acc_sig),[],"all"))))
     acc_sig = acc_sig./max(abs(acc_sig),[],"all");
     for iter2 = select_frames    
         figure;

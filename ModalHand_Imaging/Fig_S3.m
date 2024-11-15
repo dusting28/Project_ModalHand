@@ -101,10 +101,16 @@ for iter4 = 1:length(zoom)
         cycle_positions = tracked_positions(max_idx:max_idx+desired_frames-1,:,:);
         y_displacement = squeeze(cycle_positions(:,:,2));
 
+        [~,right_iter] = max(cycle_positions(1,:,1));
+        [~,left_iter] = min(cycle_positions(1,:,1));
+        pixel_to_mm = (3*39)/((cycle_positions(1,left_iter,1)-cycle_positions(1,right_iter,1))^2 + (cycle_positions(1,left_iter,2)-cycle_positions(1,right_iter,2))^2 )^.5;
+
         acc_sig = zeros(size(y_displacement,1),size(y_displacement,2)-1);
         for iter2 = 2:size(y_displacement,2)
             acc_sig(:,iter2-1) = y_displacement(:,iter2) - movmean(y_displacement(:,iter2),round(frame_rate/freqs(iter1)));
         end
+
+        acc_sig = acc_sig*pixel_to_mm*(2*pi*freqs(iter1))^2;
         % 
         % input_y = squeeze(y_displacement(:,1));
         % input_amp = (max(input_y) - min(input_y))/2;
@@ -130,6 +136,7 @@ for iter4 = 1:length(zoom)
         %     acc_sig(:,iter2-1) = acc(y_displacement(1:size(y_displacement,1),iter2),acc_win,frame_rate);
         % end
 
+        disp(strcat("Max Acceleration: ", num2str(max(abs(acc_sig),[],"all"))))
         acc_sig = acc_sig./max(abs(acc_sig),[],"all");
         for iter2 = select_frames    
             figure;

@@ -9,11 +9,14 @@ start_idx = [1,1,1,1,50];
 sig_len = 100;
 remove_points = [0,0,2,5,2];
 scenario = 5;
+DIP_idx = 9;
+PIP_idx = 18;
 MCP_idx = 32;
 
 included_points = 2:3:size(imaging.tracking_cell{scenario},2);
 
 y_pos = squeeze(imaging.tracking_cell{scenario}(:,included_points,2));
+ 
 acc_sig = zeros(sig_len-2*acc_win,length(included_points));
 
 amp_sig = zeros(length(included_points),1);
@@ -41,6 +44,8 @@ potts_upper = exp(-x_pos/12)/exp(-x_pos(1)/12);
 potts_lower = exp(-x_pos/3)/exp(-x_pos(1)/3);
 zhang_upper = exp(-x_pos*.045)/exp(-x_pos(1)*.045);
 zhang_lower = exp(-x_pos*.085)/exp(-x_pos(1)*.085);
+manfredi_lower = (x_pos(1).^1.35)./(x_pos.^1.35);
+manfredi_upper = (x_pos(1).^1.1)./(x_pos.^1.1);
 
 x_pos = x_pos-3;
 
@@ -86,7 +91,20 @@ plot(x_pos, min_tissue, 'k');
 hold on;
 plot(x_pos, max_tissue, 'k');
 hold off;
+
+figure;
+plot(x_pos, normAmp,'k');
+hold on;
+plot(x_pos, potts_upper, 'r');
+plot(x_pos, zhang_upper, 'g');
+plot(x_pos, manfredi_upper, 'b');
+xline(x_pos(PIP_idx), 'k')
+xline(x_pos(DIP_idx), 'k')
+xline(x_pos(MCP_idx), 'k')
+hold off;
+
 saveas(gcf,"MATLAB_Plots/Fig1_AttenuationPlot","epsc")
+
 
 figure;
 plot(phase_sig);
