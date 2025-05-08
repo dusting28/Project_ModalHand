@@ -39,11 +39,54 @@ unwrappedAdmittance(freq,highRes,sup_admittance', kernal, include_probe);
 %% Generate Line Plots
 position = highRes.yCord(1+not(include_probe):3:end);
 position_up = linspace(position(1),position(end),1000);
+
+sup_impulse = zeros(size(sup_admittance,1),2*size(sup_admittance,2)-2);
+wave_impulse = zeros(size(wave_admittance,1),2*size(wave_admittance,2)-2);
+
+for iter1 = 1:size(sup_admittance,1)
+    wrapped_impulse = ifft([0, sup_admittance(iter1,2:end)/2, fliplr(sup_admittance(iter1,2:end))/2],'symmetric');
+    sup_impulse(iter1,:) = [wrapped_impulse(end-374:end),wrapped_impulse(1:375)];
+end
+
+for iter1 = 1:size(wave_admittance,1)
+    wrapped_impulse = ifft([0, wave_admittance(iter1,2:end)/2, fliplr(wave_admittance(iter1,2:end))/2],'symmetric');
+    wave_impulse(iter1,:) = [wrapped_impulse(end-374:end),wrapped_impulse(1:375)];
+end
+
+normalized_sup = singleAxis(max(sup_impulse,[],2)',include_probe);
+normalized_wave = singleAxis(max(wave_impulse,[],2)',include_probe);
+
+% Smooth Data
+normalized_sup = movmean(normalized_sup,kernal);
+normalized_wave = movmean(normalized_wave,kernal);
+
+% Normalize Data
+normalized_sup = normalized_sup/normalized_sup(1);
+normalized_wave = normalized_wave/normalized_wave(1);
+
+% Plot White Noise Data
+figure
+plot(position_up, csapi(position,normalized_wave,position_up),'r')
+hold on;
+plot(position_up, csapi(position,normalized_sup,position_up),'b')
+title("White Noise")
+xlabel("Distance from Probe (mm)")
+ylabel("Normalized Admittance")
+ylim([0, 1.25])
+xlim([0,highRes.yWrist])
+hold off;
+
+
 sample_freqs = [15, 50, 100, 200, 400];
+sample_idx = zeros(1,length(sample_freqs));
 for iter1 = 1:length(sample_freqs)
-    [~, sample_idx] = min(abs(freq-sample_freqs(iter1)));
-    normalized_sup = singleAxis(abs(sup_admittance(:,sample_idx))',include_probe);
-    normalized_wave = singleAxis(abs(wave_admittance(:,sample_idx))',include_probe);
+    [~, idx] = min(abs(freq-sample_freqs(iter1)));
+    sample_idx(iter1) = idx;
+end
+
+for iter1 = 1:length(sample_freqs)
+    normalized_sup = singleAxis(abs(sup_admittance(:,sample_idx(iter1)))',include_probe);
+    normalized_wave = singleAxis(abs(wave_admittance(:,sample_idx(iter1)))',include_probe);
     
     % Smooth Data
     normalized_sup = movmean(normalized_sup,kernal);

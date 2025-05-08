@@ -6,6 +6,7 @@ num_participants = length(participants);
 
 force_matrix = zeros(num_participants,length(freq)*length(conditions));
 voltage_matrix = zeros(num_participants,length(freq)*length(conditions));
+rawForce_matrix = zeros(num_participants,length(freq)*length(conditions));
 
 for iter1 = 1:num_participants
     disp(iter1)
@@ -15,11 +16,12 @@ for iter1 = 1:num_participants
 
     voltage_matrix(iter1,:) = voltage';
     force_matrix(iter1,:) = mean(db_force,2)';
+    rawForce_matrix(iter1,:) = mean(measured_force,2)';
 end
 
 scale_factors = median(voltage_matrix,1)';
 
-save('IntensityStudy_ProcessedData', 'voltage_matrix', 'force_matrix', 'freq', 'conditions',...
+save('IntensityStudy_ProcessedData', 'voltage_matrix', 'force_matrix', 'rawForce_matrix', 'freq', 'conditions',...
     'num_participants','-v7.3');
 
 

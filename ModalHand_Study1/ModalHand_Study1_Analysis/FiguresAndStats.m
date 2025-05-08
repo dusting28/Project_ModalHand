@@ -1,4 +1,5 @@
 close all; clc; clear;
+addpath("Data\ProcessedData");
 
 %% Intensity Study
 disp("--------------Intensity Study--------------")

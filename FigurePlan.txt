@@ -1,0 +1,5 @@
+Fig. 1 - Good
+Fig. 2 - Good
+Fig. 3 - S2 + C1, C2, C3 from old Figure
+Fig. 4 - Two interactions (rigid, soft), comparison with model (S and S+A)
+Fig. 5 - Good

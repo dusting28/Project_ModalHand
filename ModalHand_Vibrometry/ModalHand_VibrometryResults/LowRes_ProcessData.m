@@ -52,6 +52,7 @@ for iter1 = 1:length(participants)
                 end
                 all_data = load(strcat(folder,filename));
                 [vel_signal, force_signal, vel_fs, force_fs] = chopMeasurementData(all_data,LDV_scale_temp);
+               
                 num_repitions = size(vel_signal,1);
 
                 band_filt = designfilt('bandpassfir', 'FilterOrder', round(size(force_signal,3)/3)-1, ...
@@ -66,7 +67,7 @@ for iter1 = 1:length(participants)
                     % Bandpass data
                     bandpass_vel = filtfilt(band_filt,downsampled_vel);
                     bandpass_force = filtfilt(band_filt,squeeze(force_signal(iter5,1,:))');
-            
+
                     % Compute IR
                     [t,ir] = computeIR_Kirkeby(bandpass_force,bandpass_vel,force_fs);
             

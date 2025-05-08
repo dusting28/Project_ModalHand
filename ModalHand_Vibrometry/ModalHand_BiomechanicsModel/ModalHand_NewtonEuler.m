@@ -5,7 +5,7 @@ close all;
 current_folder  = pwd;
 idcs   = strfind(current_folder,'\');
 outer_folder = current_folder(1:idcs(end)-1);
-% addpath(strcat(outer_folder, "\ModalHand_ProcessedData"));
+addpath(strcat(outer_folder, "\ModalHand_ProcessedData"));
 highRes = load("HighRes_ProcessedData.mat");
 
 %% Parameters
