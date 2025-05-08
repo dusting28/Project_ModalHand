@@ -11,9 +11,9 @@ TestSignal.actuatorChannels = 1;
 TestSignal.nActuators = length(TestSignal.actuatorChannels); %number of actuators (not including reference)
 
 %signal params
-TestSignal.PeakAmp = .03; %peak amp from Default_Params
-TestSignal.delStart = 2; %time before stim start and end
-TestSignal.bitDepth = 24; %bit depth of signal sent to Max
+TestSignal.PeakAmp = .03; % peak amp from Default_Params
+TestSignal.delStart = 2; % time before stim start and end
+TestSignal.bitDepth = 24; % bit depth of signal sent to Max
 TestSignal.udpmessage = 'sweep';
 TestSignal.f0 = 10; %start frequency
 TestSignal.f1 = 1000; %end frequency
