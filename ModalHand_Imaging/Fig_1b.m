@@ -141,6 +141,9 @@ manfredi_upper = (x_pos(1).^1.1)./(x_pos.^1.1);
 min_tissue = min([potts_lower; zhang_lower]);
 max_tissue = max([potts_upper; zhang_upper]);
 
+x_shao = 10*[0, 1.091634, 2.183269, 3.274903, 4.366538, 5.458172, 6.549807, 7.641441, 8.733076];
+mag_shao = [4.562369, 4.328017, 4.269534, 4.211614, 3.936212, 3.533722, 2.987275, 2.686005, 2.327096];
+
 
 % amp_sig = max(abs(high_sig),[],1)';
 normAmp = flipud(movmean(amp_sig,3))/max(movmean(amp_sig,3));
@@ -176,11 +179,13 @@ plot(x_pos, exp(yfit),'b');
 hold off;
 
 figure;
-plot(x_pos, normAmp,'b');
+%plot(x_pos, normAmp,'b');
 hold on;
 plot(x_pos, min_tissue, 'k');
 hold on;
 plot(x_pos, max_tissue, 'k');
+hold on;
+plot(x_shao, mag_shao./max(mag_shao),"r.");
 hold off;
 
 figure;

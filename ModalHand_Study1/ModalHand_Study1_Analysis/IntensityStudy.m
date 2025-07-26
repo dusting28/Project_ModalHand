@@ -8,10 +8,14 @@ force_matrix = zeros(num_participants,length(freq)*length(conditions));
 voltage_matrix = zeros(num_participants,length(freq)*length(conditions));
 rawForce_matrix = zeros(num_participants,length(freq)*length(conditions));
 
+reference_force = zeros(1,num_participants);
+
 for iter1 = 1:num_participants
     disp(iter1)
     [voltage, measured_force, comparison_force] = getStaircase(participants(iter1)); 
     
+    reference_force(iter1) = mean(comparison_force,"all");
+
     db_force = 20*log10(measured_force./comparison_force);
 
     voltage_matrix(iter1,:) = voltage';
