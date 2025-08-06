@@ -35,8 +35,10 @@ amp_sig = zeros(length(included_points),1);
 phase_sig = zeros(length(included_points),1);
 
 acc_sig = zeros(sig_len-2*acc_win,length(included_points));
+vel_sig = zeros(sig_len-2*acc_win,length(included_points));
 for iter2 = 1:length(included_points)
     acc_sig(:,iter2) = acc(pixel_to_mm*y_pos(start_idx(scenario):start_idx(scenario)+sig_len-1,iter2),acc_win,imaging.frame_rate(scenario));
+    vel_sig(:,iter2) = vel(pixel_to_mm*y_pos(start_idx(scenario):start_idx(scenario)+sig_len-1,iter2),acc_win,imaging.frame_rate(scenario));
     [max_val, max_idx] = max(abs(acc_sig(:,iter2)));
     amp_sig(iter2) = max_val;
     phase_sig(iter2) = max_idx;
@@ -45,7 +47,7 @@ end
 x_pos = 3*(0:39); % in mm
 x_up = linspace(x_pos(1),x_pos(end),1000);
 
-%%
+%% Plot Acceleration of Tracked Points
 
 colormap =  turbo(length(included_points));
 
@@ -70,6 +72,7 @@ for iter1 = 1:length(included_points)
     [~, max_idx] = max(mag_up);
     max_freq(iter1) = freq_up(max_idx);
     if ismember(iter1,select_idx) 
+        disp(strcat("Resonance at point ", num2str(iter1), ": ", num2str(max_freq(iter1)), " Hz"));
         plot(freq_up,mag_up,"Color",colormap(idx,:))
         hold on;
     end
@@ -77,6 +80,32 @@ end
 hold off;
 xlim([15,400])
 ylim([2.8,4.5])
+
+%% Plot Velocity of Tracked Points
+
+colormap =  turbo(length(included_points));
+
+% Frequency Domain Signals
+figure;
+max_freq = zeros(1,length(included_points));
+for iter1 = 1:length(included_points)
+    idx = length(included_points)-iter1+1;
+    magSpec = abs(fft(vel_sig(:,idx)))/length(vel_sig(:,idx));
+    magSpec = magSpec(1:length(magSpec)/2+1);
+    freq = (imaging.frame_rate(scenario)/length(vel_sig(:,idx)))*(0:(length(vel_sig(:,idx))/2));
+    freq_up = linspace(freq(1),freq(end),1000);
+    mag_up = csapi(freq,log10(magSpec),freq_up);
+    [~, max_idx] = max(mag_up);
+    max_freq(iter1) = freq_up(max_idx); 
+    if ismember(iter1,select_idx) 
+        disp(strcat("Resonance at point ", num2str(iter1), ": ", num2str(max_freq(iter1)), " Hz"));
+        plot(freq_up,mag_up,"Color",colormap(idx,:))
+        hold on;
+    end
+end
+hold off;
+xlim([15,400])
+% ylim([2.8,4.5])
 
 %% Complementary Filters
 cutoff_frequency = 100;
