@@ -9,7 +9,7 @@ start_idx = [1,1,1,1,50];
 start_frame = [1,1,12,7,60];
 sig_len = 130;
 remove_points = [0,0,2,5,2];
-scenario = 5;
+scenario = 4;
 DIP_idx = 9;
 PIP_idx = 18;
 MCP_idx = 32;
@@ -130,7 +130,43 @@ xline(x_pos(MCP_idx), 'k');
 hold off;
 ylim([0,1])
 
-%% Modelling
+%% Linear Regression
+y_low = fliplr(max(abs(low_sig)));
+
+linearCoefficients = polyfit(x_pos, y_low, 1);          % Coefficients
+yfit = polyval(linearCoefficients, x_pos);      % Estimated  Regression Line
+%yfit = (x_pos(MCP_idx)-x_pos)/x_pos(MCP_idx);
+%yfit(yfit<0) = 0;
+SStot = sum((y_low-mean(lowAmp)).^2);                    % Total Sum-Of-Squares
+SSres = sum((y_low-yfit).^2);                       % Residual Sum-Of-Squares
+Rsq = 1-SSres/SStot;
+disp(strcat("R-squared linear: ", num2str(Rsq)));
+disp(strcat("Distance from zero-cross to MCP: ",num2str(-linearCoefficients(2)/linearCoefficients(1)-x_pos(MCP_idx))," mm"))
+disp(strcat("Slope: ",num2str(linearCoefficients(1)/1000)," m/mm s^2"))
+
+figure;
+plot(x_pos, y_low,'bo');
+hold on;
+plot(x_pos, yfit,'b');
+hold off;
+
+y_high = fliplr(max(abs(high_sig)));
+
+linearCoefficients = polyfit(x_pos, log(y_high), 1);          % Coefficients
+yfit = polyval(linearCoefficients, x_pos);          % Estimated  Regression Line
+SStot = sum((log(y_high)-mean(log(y_high))).^2);                    % Total Sum-Of-Squares
+SSres = sum((log(y_high)-yfit).^2);                       % Residual Sum-Of-Squares
+Rsq = 1-SSres/SStot;
+disp(strcat("R-squared exponential: ", num2str(Rsq)));
+disp(strcat("Decay rate: ", num2str(linearCoefficients(1))));
+
+figure;
+plot(x_pos, y_high,'bo');
+hold on;
+plot(x_pos, exp(yfit),'b');
+hold off;
+
+%% Modeling Comparison
 potts_upper = exp(-x_pos/12)/exp(-x_pos(1)/12);
 potts_lower = exp(-x_pos/3)/exp(-x_pos(1)/3);
 zhang_upper = exp(-x_pos*.045)/exp(-x_pos(1)*.045);
@@ -148,35 +184,6 @@ mag_shao = [4.562369, 4.328017, 4.269534, 4.211614, 3.936212, 3.533722, 2.987275
 % amp_sig = max(abs(high_sig),[],1)';
 normAmp = flipud(movmean(amp_sig,3))/max(movmean(amp_sig,3));
 
-linearCoefficients = polyfit(x_pos, normAmp, 1);          % Coefficients
-yfit = polyval(linearCoefficients, x_pos);      % Estimated  Regression Line
-%yfit = (x_pos(MCP_idx)-x_pos)/x_pos(MCP_idx);
-%yfit(yfit<0) = 0;
-SStot = sum((normAmp'-mean(normAmp)).^2);                    % Total Sum-Of-Squares
-SSres = sum((normAmp'-yfit).^2);                       % Residual Sum-Of-Squares
-Rsq = 1-SSres/SStot;
-disp(strcat("R-squared linear: ", num2str(Rsq)));
-disp(strcat("Distance from zero-cross to MCP: ",num2str(-linearCoefficients(2)/linearCoefficients(1)-x_pos(MCP_idx))," mm"))
-
-figure;
-plot(x_pos, normAmp,'bo');
-hold on;
-plot(x_pos, yfit,'b');
-hold off;
-
-linearCoefficients = polyfit(x_pos, log(normAmp), 1);          % Coefficients
-yfit = polyval(linearCoefficients, x_pos);          % Estimated  Regression Line
-SStot = sum((log(normAmp)'-mean(log(normAmp))).^2);                    % Total Sum-Of-Squares
-SSres = sum((log(normAmp)'-yfit).^2);                       % Residual Sum-Of-Squares
-Rsq = 1-SSres/SStot;
-disp(strcat("R-squared exponential: ", num2str(Rsq)));
-disp(strcat("Decay rate: ", num2str(linearCoefficients(1))));
-
-figure;
-plot(x_pos, normAmp,'bo');
-hold on;
-plot(x_pos, exp(yfit),'b');
-hold off;
 
 figure;
 %plot(x_pos, normAmp,'b');
